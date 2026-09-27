@@ -1,5 +1,8 @@
 package kr.co.kreport.license;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +20,7 @@ import java.util.Set;
  * @param maxReports  배포 가능한 리포트 수. 0 이하면 제한 없음.
  * @param features    켜 줄 기능 이름
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record License(
         String licensee,
         String licenseId,
@@ -34,6 +38,14 @@ public record License(
         features = features == null ? Set.of() : Set.copyOf(features);
     }
 
+    /**
+     * 파생 값이라 서명 대상에서 뺀다.
+     *
+     * <p>빼지 않으면 {@code trial} 이 본문에 실려 나갔다가, 읽을 때는 레코드에 없는 필드라
+     * 해석이 깨진다. 발급기와 검증기가 서로 다른 판이어도 열려야 하므로 본문은 최소한만
+     * 담는다.</p>
+     */
+    @JsonIgnore
     public boolean isTrial() {
         return features.contains(TRIAL);
     }

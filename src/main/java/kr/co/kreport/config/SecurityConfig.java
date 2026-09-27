@@ -43,8 +43,8 @@ public class SecurityConfig {
     private static final String API = "/api/reports";
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector)
-            throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector,
+                                          KReportProperties properties) throws Exception {
         MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspector);
 
         // 토큰을 자바스크립트가 읽어 헤더로 되돌려 보낼 수 있어야 하므로 HttpOnly 를 끈다.
@@ -54,9 +54,16 @@ public class SecurityConfig {
         csrfHandler.setCsrfRequestAttributeName(null);
 
         http
+                // WebMvcConfigurer 에 적어 둔 임베드 출처 규칙을 시큐리티 체인도 따르게 한다.
+                // 이게 없으면 사전 요청(preflight)이 인증에서 먼저 막힌다.
+                .cors(Customizer.withDefaults())
+
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfRepository)
-                        .csrfTokenRequestHandler(csrfHandler))
+                        .csrfTokenRequestHandler(csrfHandler)
+                        // 임베드는 읽기(GET)만 하므로 상태를 바꾸지 않는다.
+                        // 교차 출처에서 토큰을 얻을 방법이 없어 제외한다.
+                        .ignoringRequestMatchers("/embed/**"))
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(mvc.pattern("/login"), mvc.pattern("/css/**"),
@@ -122,8 +129,16 @@ public class SecurityConfig {
                                 // 스크립트는 같은 출처에서만 받는다.
                                 "default-src 'self'; img-src 'self' data:; "
                                         + "style-src 'self' 'unsafe-inline'; script-src 'self'; "
-                                        + "frame-ancestors 'none'; base-uri 'self'"))
-                        .frameOptions(frame -> frame.sameOrigin())
+                                        + frameAncestors(properties) + " base-uri 'self'"))
+                        // X-Frame-Options 는 출처를 하나만 지정할 수 없어 frame-ancestors 와
+                        // 충돌한다. 허용 목록을 쓸 때는 CSP 쪽에 맡기고 이 헤더를 끈다.
+                        .frameOptions(frame -> {
+                            if (properties.getEmbed().getAllowedFrameAncestors().isEmpty()) {
+                                frame.sameOrigin();
+                            } else {
+                                frame.disable();
+                            }
+                        })
                         .referrerPolicy(referrer -> referrer.policy(
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter
                                         .ReferrerPolicy.SAME_ORIGIN)));
@@ -154,6 +169,20 @@ public class SecurityConfig {
                         .roles(ReportRole.VIEWER, ReportRole.DESIGNER, ReportRole.ADMIN).build());
 
         return new InMemoryUserDetailsManager(users);
+    }
+
+    /**
+     * 우리 화면을 감쌀 수 있는 상위 페이지.
+     *
+     * <p>기본은 아무도 감쌀 수 없다. 클릭재킹으로 남의 페이지가 우리 화면을 덮어 놓고
+     * 사용자의 클릭을 가로채는 것을 막는다. iframe 으로 끼워 넣으려면 그 포털 주소를
+     * {@code kreport.embed.allowed-frame-ancestors} 에 적는다.</p>
+     */
+    private static String frameAncestors(KReportProperties properties) {
+        List<String> allowed = properties.getEmbed().getAllowedFrameAncestors();
+        return allowed.isEmpty()
+                ? "frame-ancestors 'none';"
+                : "frame-ancestors 'self' " + String.join(" ", allowed) + ";";
     }
 
     @Bean

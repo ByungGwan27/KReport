@@ -30,6 +30,47 @@ public class KReportProperties {
 
     private Font font = new Font();
 
+    /** 고객사 화면에 끼워 넣기 */
+    private Embed embed = new Embed();
+
+    /**
+     * 임베드 설정.
+     *
+     * <p>고객사 포털은 대개 우리 서버와 다른 도메인이라, 브라우저가 교차 출처 요청을
+     * 막는다. 그렇다고 아무 도메인에나 열면 남의 사이트가 로그인된 브라우저를 빌려
+     * 리포트를 읽어 갈 수 있다. 그래서 <b>허용할 주소를 하나씩 적게</b> 한다.</p>
+     */
+    @Data
+    public static class Embed {
+
+        /**
+         * 끼워 넣기를 허용할 출처. {@code https://portal.city.go.kr} 처럼 스킴까지 적는다.
+         *
+         * <p>비워 두면 교차 출처 임베드가 꺼진다. 같은 도메인에서 쓰는 경우에는 설정이
+         * 필요 없다. 와일드카드({@code *})는 받지 않는다 — 로그인 쿠키를 함께 보내는
+         * 요청이라 브라우저도 허용하지 않고, 허용한다면 전체 공개와 다름없다.</p>
+         */
+        private List<String> allowedOrigins = new ArrayList<>();
+
+        /**
+         * iframe 으로 감싸는 것을 허용할 상위 페이지.
+         *
+         * <p>{@code frame-ancestors} 에 그대로 들어간다. 비어 있으면 어떤 페이지도
+         * 우리 화면을 감쌀 수 없다(클릭재킹 방지 기본값).</p>
+         */
+        private List<String> allowedFrameAncestors = new ArrayList<>();
+
+        /**
+         * 교차 출처로 세션 쿠키를 보낼지.
+         *
+         * <p>켜면 쿠키가 {@code SameSite=None; Secure} 로 나간다. <b>HTTPS 가 아니면
+         * 브라우저가 그 쿠키를 아예 저장하지 않으므로</b>, 평문 HTTP 운영에서는 켜도
+         * 소용이 없다. 사내망이라 HTTPS 를 안 쓰는 곳이면 iframe 이나 같은 도메인
+         * 리버스 프록시로 붙이는 편이 낫다.</p>
+         */
+        private boolean crossSiteCookie = false;
+    }
+
     /** 라이선스와 배포 패키지 서명 */
     private LicenseConfig license = new LicenseConfig();
 

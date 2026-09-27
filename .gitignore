@@ -1,1 +1,19 @@
 /target
+
+# 발급된 라이선스와 구운 배포 패키지는 산출물이라 저장소에 두지 않는다.
+# 특히 라이선스는 고객사별로 발급되는 계약 증표다.
+license.key
+*.krpt
+
+# 서명용 개인키가 파일로 떨어지는 경우
+*.pem
+*.p8
+private-key*
+
+# 개발 중 생기는 것들
+*.log
+/logs/
+.idea/
+*.iml
+.vscode/
+.DS_Store

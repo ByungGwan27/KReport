@@ -98,6 +98,20 @@ kreport:
   font:
     regular: ""
     bold: ""
+  # 라이선스와 배포 패키지 서명
+  license:
+    # 검증용 공개키. 반드시 직접 만들어 넣는다.
+    #   java -cp kreport.jar -Dloader.main=kr.co.kreport.license.LicenseTool     #        org.springframework.boot.loader.launch.PropertiesLauncher keygen
+    # 기본값을 비워 둔 이유: 여기에 예시 키를 박아 두면 그 짝인 개인키가 어딘가에
+    # 공개되어 있을 때 누구나 라이선스를 위조할 수 있다. 검증키는 설치본마다 달라야 한다.
+    public-key: ""
+    # 서명용 개인키. 공급사 빌드 환경에만 둔다. 납품물에는 절대 넣지 않는다.
+    # 환경변수 KREPORT_LICENSE_PRIVATE_KEY 로 주는 것을 권장한다.
+    private-key: ""
+    path: license.key
+    # 운영 배포에서는 true. 라이선스가 없으면 기동하지 않는다.
+    require: false
+
   # 기동 시 classpath:reports/*.json 을 리포트 정의로 등록할지 여부
   load-sample-reports: true
 
