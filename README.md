@@ -9,6 +9,8 @@ UBIReport·크리스탈리포트 계열의 **밴드 기반 웹 리포팅 엔진*
 - 개발 DB: H2(인메모리), 운영: PostgreSQL 프로파일 동봉
 - PDF: Apache PDFBox · 엑셀: Apache POI · QR/바코드: ZXing
 
+> **쓰는 분이라면** [사용 설명서](docs/USER-GUIDE.md)를 보세요. 이 문서는 설치·개발용입니다.
+
 ---
 
 ## 1. 빠른 실행
@@ -301,6 +303,11 @@ select dept_code, dept_name, exec_amt
 | POST | `/api/reports/fields` | SQL 결과 컬럼 목록 (디자이너용) |
 | GET | `/api/reports/functions` | 함수·변수 목록 |
 | GET | `/api/reports/datasources` | 내가 쿼리를 쓸 수 있는 DB 목록 |
+| GET | `/api/deploy/license` | 라이선스 상태 (관리자) |
+| GET | `/api/deploy/{id}/package` | 배포용 `.krpt` 내려받기 (관리자) |
+| POST | `/api/deploy/install` | 패키지 설치 (관리자) |
+| GET | `/embed/{id}` | 임베드용 리포트 본문 |
+| GET | `/embed/{id}/snippet` | 붙여 넣을 코드 조각 |
 | GET | `/api/reports/{id}/access` | 열람 설정 조회 (관리자) |
 | PUT | `/api/reports/{id}/access` | 통제 방식 전환 (관리자) |
 | POST | `/api/reports/{id}/access` | 열람 규칙 추가 (관리자) |
@@ -430,7 +437,93 @@ kreport.security.departments:
 
 ---
 
-## 6. 설계에서 신경 쓴 지점
+## 6. 배포와 라이선스
+
+리포트를 **서명된 패키지**로 구워 고객사 서버에 넣고, 그 서버의 화면에 끼워 넣는 방식입니다.
+UBIReport 의 `.jrf` 와 같은 자리입니다.
+
+### 납품 흐름
+
+```
+[공급사]  디자이너로 리포트 작성
+            ↓  GET /api/deploy/{id}/package      (개인키 필요)
+          BUDGET_EXEC.krpt
+            ↓  전달
+[고객사]  POST /api/deploy/install               (서명·라이선스 확인)
+            ↓
+          포털 화면에 <div class="kreport"> 한 줄
+```
+
+고객사 서버에는 **공개키만** 들어갑니다. 개인키가 없으므로 패키지를 새로 굽거나 고칠 수
+없고, 고친 파일을 올리면 설치 단계에서 막힙니다.
+
+### 무엇을 보장하고 무엇을 보장하지 않는가
+
+보장하는 것은 **변조 탐지**입니다. 한 바이트라도 고치면 서명이 깨져 거부됩니다. 압축을
+거치므로 편집기로 열어도 SQL 이나 좌표가 보이지 않습니다.
+
+보장하지 않는 것은 **내용의 비밀**입니다. 푸는 코드가 고객사 서버 안에 있는 이상,
+작정하고 뜯으면 정의를 꺼낼 수 있습니다. 암호화를 얹어도 열쇠를 같은 서버에 두어야 하므로
+사정은 같습니다. `.jrf` 도 마찬가지이고, 이 점을 감추지 않고 적어 둡니다.
+
+### 라이선스
+
+**Ed25519 비대칭 서명**을 씁니다. HMAC 같은 대칭키를 쓰면 검증 키가 고객사 서버 안에 있어
+그 키로 라이선스를 위조할 수 있습니다. 비대칭이면 공개키로는 검증만 되고 새로 만들 수 없습니다.
+
+```bash
+# 키 한 쌍 (한 번만, 공급사에서)
+java -cp target/kreport-1.0.0.jar -Dloader.main=kr.co.kreport.license.LicenseTool      org.springframework.boot.loader.launch.PropertiesLauncher keygen
+
+# 발급
+java -cp target/kreport-1.0.0.jar -Dloader.main=kr.co.kreport.license.LicenseTool      org.springframework.boot.loader.launch.PropertiesLauncher issue      --private-key <개인키> --licensee "○○시청" --id KR-2026-001      --expires 2027-12-31 --hosts report.city.go.kr --max-reports 50 --out license.key
+```
+
+발급된 파일은 278바이트짜리 한 줄입니다. 담기는 항목은 고객사명·발급번호·만료일·허용
+호스트·리포트 수 상한·기능 목록입니다.
+
+확인하는 지점은 둘입니다. **기동할 때** 서명·호스트·만료를 모두 보고, **리포트를 실행할
+때마다** 만료만 다시 봅니다. 서버를 몇 달씩 켜 두는 곳이 많아 기동 시점에만 보면 계약이
+끝난 뒤에도 재기동 전까지 계속 돌기 때문입니다.
+
+라이선스가 없으면 **평가판으로 기동**하고 워터마크가 찍힙니다. 설치 직후 화면을 한 번 열어
+보고 정식 키를 요청하는 순서가 현장에서 보통이기 때문입니다. 운영 배포에서는
+`kreport.license.require=true` 로 막습니다.
+
+### 고객사 화면에 끼워 넣기
+
+```html
+<div class="kreport" data-report="BUDGET_EXEC" data-params="fiscalYear=2026"></div>
+<script src="https://report.city.go.kr/embed/kreport.js"></script>
+```
+
+JSP·iframe 형태는 `GET /embed/{id}/snippet` 이 만들어 줍니다. 리포트를 그리는 일은 여전히
+KReport 서버가 합니다 — 데이터 조회와 쪽 나눔은 JDBC 와 레이아웃 엔진이 있어야 하므로
+브라우저로 옮길 수 없습니다. 고객사 화면에 들어가는 것은 **가져다 보여 주는 코드**뿐이고,
+정의와 SQL 은 서버에 남습니다.
+
+#### 교차 출처 제약 — 먼저 읽으세요
+
+고객사 포털이 KReport 와 **다른 도메인**이면 브라우저가 요청을 막습니다. 허용할 주소를
+하나씩 적어야 열립니다. 와일드카드는 받지 않습니다 — 로그인 쿠키가 실리는 요청이라
+전체 공개와 다름없어집니다.
+
+```yaml
+kreport.embed:
+  allowed-origins: [https://portal.city.go.kr]          # fetch 방식
+  allowed-frame-ancestors: [https://portal.city.go.kr]  # iframe 방식
+  cross-site-cookie: true                                # HTTPS 필수
+```
+
+**HTTPS 가 아니면 교차 출처 임베드는 동작하지 않습니다.** `SameSite=None` 쿠키는 `Secure`
+없이 저장되지 않고, `Secure` 는 HTTPS 에서만 붙습니다. 실제로 평문 HTTP 로 시험하면 iframe
+은 뜨지만 세션이 실리지 않아 로그인 화면이 나옵니다. 사내망이라 HTTPS 를 쓰지 않는다면
+**같은 도메인 리버스 프록시**(`/report/*` 를 KReport 로 넘김)로 붙이는 편이 확실합니다.
+같은 도메인이면 위 설정 없이 그대로 동작합니다.
+
+---
+
+## 7. 설계에서 신경 쓴 지점
 
 **두 번 나눠 그리는 레이아웃** — 1차로 본문을 흘려 쪽을 나누고, 전체 쪽 수가 확정된
 뒤 2차로 머리말·꼬리말을 얹습니다. 꼬리말의 `1 / 12` 표기가 바로 그 값을 필요로 하는데,
@@ -476,7 +569,7 @@ SVG의 `dominant-baseline`에 맡기지 않고 같은 식을 양쪽이 쓰게 �
 
 ---
 
-## 7. 접근 통제
+## 8. 접근 통제
 
 **권한은 화면이 아니라 할 수 있는 일로 나눕니다.** 핵심은 조회와 편집의 분리입니다.
 리포트 정의를 저장할 수 있다는 것은 조회 SQL 을 마음대로 쓸 수 있다는 뜻이고,
@@ -551,15 +644,15 @@ SVG의 `dominant-baseline`에 맡기지 않고 같은 식을 양쪽이 쓰게 �
 
 ---
 
-## 8. 테스트
+## 9. 테스트
 
 ```bash
 mvn test
 ```
 
-156건. 표현식 파서·평가(28), 차트 집계·축·배치·누적·로그·라벨배치(45),
+172건. 표현식 파서·평가(28), 차트 집계·축·배치·누적·로그·라벨배치(45),
 SQL 가드와 이름 바인딩(13), **접근 통제(12)**, **리포트별 열람 권한(11+11)**,
-**데이터소스 격리(9)**, 레이아웃(8), 익스포터(8), 함수 레지스트리(7),
+**데이터소스 격리(9)**, **라이선스·패키지 서명(10)**, **배포 왕복(6)**, 레이아웃(8), 익스포터(8), 함수 레지스트리(7),
 템플릿 캐시 규약(3), 서식 동시성(1)을 덮습니다.
 
 `DataSourceIsolationTest` 는 거래처 DB 를 별도 H2 로 띄우고, 거래처 편집자가
@@ -579,7 +672,7 @@ PDF 테스트는 실제로 PDF를 만들어 `PDFTextStripper` 로 한글이 살�
 
 ---
 
-## 9. 운영 배포
+## 10. 운영 배포
 
 ```bash
 mvn clean package
@@ -604,7 +697,7 @@ kreport:
 
 ---
 
-## 10. 아직 없는 것
+## 11. 아직 없는 것
 
 실제 도입 전에 추가해야 할 항목입니다.
 
