@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{layout :: head('실행 이력')}"></head>
+<body>
+
+<header th:replace="~{layout :: gnb('logs')}"></header>
+
+<div class="wrap">
+
+    <div class="page-title">
+        <h1>리포트 실행 이력</h1>
+        <p>누가 어떤 조건으로 무엇을 몇 건 내려받았는지 기록합니다.</p>
+    </div>
+
+    <div class="panel" style="padding:0">
+        <table class="grid">
+            <colgroup>
+                <col style="width:140px">
+                <col style="width:110px">
+                <col style="width:180px">
+                <col>
+                <col style="width:60px">
+                <col style="width:70px">
+                <col style="width:60px">
+                <col style="width:70px">
+                <col style="width:110px">
+                <col style="width:110px">
+            </colgroup>
+            <thead>
+            <tr>
+                <th>실행일시</th>
+                <th>리포트 ID</th>
+                <th>리포트명</th>
+                <th>조회 조건</th>
+                <th>형식</th>
+                <th>행수</th>
+                <th>쪽수</th>
+                <th>소요</th>
+                <th>실행자</th>
+                <th>IP</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="log : ${logs.content}">
+                <td class="center"
+                    th:text="${#temporals.format(log.executedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                <td th:text="${log.reportId}"></td>
+                <td>
+                    <span th:text="${log.reportName}"></span>
+                    <span class="tag fail" th:if="${log.status.name() == 'FAILURE'}">실패</span>
+                </td>
+                <td style="font-size:11px;color:#555;word-break:break-all">
+                    <span th:text="${log.parameters}"></span>
+                    <div th:if="${log.errorMessage}" style="color:#a33125"
+                         th:text="${log.errorMessage}"></div>
+                </td>
+                <td class="center" th:text="${log.format}"></td>
+                <td class="num" th:text="${log.rowCount} ?: '-'"></td>
+                <td class="num" th:text="${log.pageCount} ?: '-'"></td>
+                <td class="num" th:text="${log.elapsedMs != null} ? ${log.elapsedMs} + 'ms' : '-'"></td>
+                <td class="center" th:text="${log.executedBy}"></td>
+                <td class="center" th:text="${log.clientIp} ?: '-'"></td>
+            </tr>
+            <tr th:if="${logs.empty}">
+                <td colspan="10" class="empty">실행 이력이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="toolbar" th:if="${logs.totalPages > 1}">
+        <a class="btn" th:if="${page > 0}" th:href="@{/logs(page=${page - 1})}">이전</a>
+        <span th:text="${page + 1} + ' / ' + ${logs.totalPages}"></span>
+        <a class="btn" th:if="${page + 1 < logs.totalPages}" th:href="@{/logs(page=${page + 1})}">다음</a>
+    </div>
+
+</div>
+
+</body>
+</html>

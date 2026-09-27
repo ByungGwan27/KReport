@@ -1,0 +1,432 @@
+/* 리포트 디자이너 전용 스타일 */
+
+.dz {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 48px);
+}
+
+.dz-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+}
+
+.dz-toolbar .spacer {
+    flex: 1;
+}
+
+.dz-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--line);
+    margin: 0 6px;
+}
+
+.dz-group-label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+#dzMessage:not(:empty) {
+    padding: 8px 12px;
+}
+
+.dz-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.dz-left, .dz-right {
+    width: 264px;
+    flex: none;
+    overflow-y: auto;
+    background: #fbfcfd;
+    border-right: 1px solid var(--line);
+    padding: 10px;
+}
+
+.dz-right {
+    border-right: none;
+    border-left: 1px solid var(--line);
+    width: 290px;
+}
+
+.dz-center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.dz-canvas-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+}
+
+.dz-canvas-bar .spacer {
+    flex: 1;
+}
+
+.dz-hint {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.dz-canvas-wrap {
+    flex: 1;
+    overflow: auto;
+    background: #8a8f96;
+    padding: 16px;
+}
+
+.dz-canvas {
+    margin: 0 auto;
+    transform-origin: top center;
+    /* 밴드 이름표를 놓을 왼쪽 거터. 이름표가 지면 위 요소를 가리지 않게 한다. */
+    padding-left: 96px;
+}
+
+/* ------------------------------------------------------------------ 카드 */
+
+.dz-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.dz-card h3 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: #33506f;
+    letter-spacing: -0.2px;
+}
+
+.dz-card h3 small {
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 4px;
+}
+
+.dz-card textarea {
+    width: 100%;
+    font-family: Consolas, 'D2Coding', monospace;
+    font-size: 11.5px;
+}
+
+.dz-form {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    gap: 5px 8px;
+    align-items: center;
+}
+
+.dz-form > label {
+    display: contents;
+}
+
+.dz-form > label > span {
+    color: var(--muted);
+    font-size: 11.5px;
+    text-align: right;
+}
+
+.dz-form input, .dz-form select, .dz-form textarea {
+    width: 100%;
+    height: 26px;
+    font-size: 12px;
+}
+
+.dz-form textarea {
+    height: auto;
+}
+
+.dz-form .full {
+    grid-column: 1 / -1;
+}
+
+.dz-form hr {
+    grid-column: 1 / -1;
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 4px 0;
+}
+
+.dz-form .section {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    font-weight: 700;
+    color: #33506f;
+    margin-top: 2px;
+}
+
+.dz-empty {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    text-align: center;
+    padding: 16px 0;
+    margin: 0;
+}
+
+.dz-inline {
+    display: flex;
+    gap: 5px;
+    margin-top: 6px;
+}
+
+.dz-inline select {
+    flex: 1;
+    height: 26px;
+    font-size: 12px;
+}
+
+/* ------------------------------------------------------------------ 목록 */
+
+.dz-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dz-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 7px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #fff;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.dz-item:hover {
+    background: #f2f6fb;
+}
+
+.dz-item.on {
+    border-color: var(--primary);
+    background: #eaf1f9;
+}
+
+.dz-item .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dz-item .sub {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.dz-item button {
+    border: none;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0 2px;
+    font-size: 13px;
+}
+
+.dz-item button:hover {
+    color: var(--danger);
+}
+
+.dz-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.dz-fields span {
+    padding: 2px 7px;
+    background: #eef2f7;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.dz-fields span:hover {
+    background: #dde7f3;
+}
+
+/* ------------------------------------------------------------------ 밴드 캔버스 */
+
+.dz-band {
+    position: relative;
+    background: #fff;
+    border: 1px solid #b9c2ce;
+    border-top: none;
+    box-sizing: content-box;
+}
+
+.dz-band:first-child {
+    border-top: 1px solid #b9c2ce;
+}
+
+.dz-band-tag {
+    position: absolute;
+    left: -96px;
+    top: 0;
+    width: 88px;
+    z-index: 5;
+    padding: 1px 4px;
+    color: #eef3f8;
+    font-size: 10.5px;
+    line-height: 1.35;
+    text-align: right;
+    pointer-events: none;
+}
+
+.dz-band-tag em {
+    display: block;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.dz-band-tag small {
+    opacity: .75;
+    font-size: 10px;
+}
+
+.dz-band.on .dz-band-tag {
+    color: #ffd98a;
+}
+
+.dz-band.on {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
+/* 밴드 높이 조절 손잡이 */
+.dz-band-resize {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 6px;
+    cursor: ns-resize;
+    z-index: 6;
+}
+
+.dz-band-resize:hover {
+    background: rgba(27, 79, 138, .35);
+}
+
+/* ------------------------------------------------------------------ 요소 */
+
+.dz-el {
+    position: absolute;
+    box-sizing: border-box;
+    overflow: hidden;
+    cursor: move;
+    display: flex;
+    font-size: 9pt;
+    user-select: none;
+}
+
+.dz-el > span {
+    width: 100%;
+    pointer-events: none;
+}
+
+.dz-el.sel {
+    outline: 2px solid #e67e22;
+    outline-offset: -1px;
+}
+
+.dz-el .handle {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 9px;
+    height: 9px;
+    background: #e67e22;
+    cursor: nwse-resize;
+}
+
+.dz-el.ghost {
+    opacity: .55;
+}
+
+/* ------------------------------------------------------------------ 미리보기 */
+
+.dz-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(20, 24, 30, .6);
+    display: flex;
+    flex-direction: column;
+}
+
+.dz-modal-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+}
+
+.dz-modal-bar .spacer {
+    flex: 1;
+}
+
+.dz-modal-body {
+    flex: 1;
+    overflow: auto;
+    padding: 16px 0;
+    background: #7a7a7a;
+}
+
+/* 차트 계열 편집 카드 */
+.dz-series {
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 5px;
+    margin-bottom: 4px;
+}
+
+.dz-series input, .dz-series select {
+    width: 100%;
+    margin-bottom: 3px;
+}
+
+.dz-series select {
+    margin-bottom: 0;
+}
+
+.dz-series-head {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.dz-series-head span {
+    flex: 1;
+    font-size: 11px;
+    color: #33506f;
+}
+
+.dz-series-head button {
+    height: 20px;
+    padding: 0 6px;
+    font-size: 11px;
+}

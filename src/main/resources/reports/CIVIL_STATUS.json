@@ -1,0 +1,681 @@
+{
+  "schemaVersion": 1,
+  "reportId": "CIVIL_STATUS",
+  "name": "민원 처리 현황 대장",
+  "description": "기간별 민원 접수·처리 현황을 처리부서 단위로 집계하고 기한 경과 건을 표시한다.",
+  "page": {
+    "paperSize": "A4",
+    "orientation": "PORTRAIT",
+    "marginTop": 36,
+    "marginRight": 28,
+    "marginBottom": 36,
+    "marginLeft": 28
+  },
+  "dataSet": {
+    "sourceType": "SQL",
+    "sql": "select complaint_no, dept_name, category, title, applicant_name,\n       received_date, due_date, completed_date, handler_name, status, satisfaction\n  from civil_complaint\n where received_date between :fromDate and :toDate\n   and dept_name like :deptName\n order by dept_name, received_date, complaint_no",
+    "maxRows": 50000
+  },
+  "parameters": [
+    {
+      "name": "fromDate",
+      "label": "접수일(시작)",
+      "dataType": "DATE",
+      "required": true,
+      "defaultValue": "2026-06-01"
+    },
+    {
+      "name": "toDate",
+      "label": "접수일(종료)",
+      "dataType": "DATE",
+      "required": true,
+      "defaultValue": "2026-08-31"
+    },
+    {
+      "name": "deptName",
+      "label": "처리부서",
+      "dataType": "STRING",
+      "required": true,
+      "defaultValue": "%",
+      "options": [
+        {
+          "value": "%",
+          "label": "전체"
+        },
+        {
+          "value": "행정지원과",
+          "label": "행정지원과"
+        },
+        {
+          "value": "복지정책과",
+          "label": "복지정책과"
+        },
+        {
+          "value": "환경관리과",
+          "label": "환경관리과"
+        },
+        {
+          "value": "도시계획과",
+          "label": "도시계획과"
+        },
+        {
+          "value": "교통행정과",
+          "label": "교통행정과"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "dept",
+      "expression": "{DEPT_NAME}",
+      "pageBreak": false,
+      "resetPageNumber": false,
+      "repeatHeaderOnNewPage": true
+    }
+  ],
+  "bands": [
+    {
+      "type": "PAGE_HEADER",
+      "height": 62,
+      "elements": [
+        {
+          "id": "title",
+          "type": "LABEL",
+          "text": "민원 처리 현황 대장",
+          "x": 0,
+          "y": 0,
+          "width": 539.0,
+          "height": 22,
+          "style": {
+            "fontSize": 15,
+            "bold": true,
+            "align": "CENTER"
+          }
+        },
+        {
+          "id": "period",
+          "type": "LABEL",
+          "text": "조회기간: ${@fromDate} ~ ${@toDate}",
+          "x": 0,
+          "y": 24,
+          "width": 260,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "color": "#555555"
+          }
+        },
+        {
+          "id": "printed",
+          "type": "LABEL",
+          "text": "출력일시: ${FORMAT(PRINT_TIME,'yyyy-MM-dd HH:mm')}",
+          "x": 339.0,
+          "y": 24,
+          "width": 200,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "color": "#555555"
+          }
+        },
+        {
+          "id": "h_no",
+          "type": "LABEL",
+          "text": "민원번호",
+          "x": 0.0,
+          "y": 44.0,
+          "width": 76,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_cat",
+          "type": "LABEL",
+          "text": "유형",
+          "x": 76.0,
+          "y": 44.0,
+          "width": 52,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_title",
+          "type": "LABEL",
+          "text": "민원 제목",
+          "x": 128.0,
+          "y": 44.0,
+          "width": 150,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_recv",
+          "type": "LABEL",
+          "text": "접수일",
+          "x": 278.0,
+          "y": 44.0,
+          "width": 54,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_due",
+          "type": "LABEL",
+          "text": "처리기한",
+          "x": 332.0,
+          "y": 44.0,
+          "width": 54,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_comp",
+          "type": "LABEL",
+          "text": "처리일",
+          "x": 386.0,
+          "y": 44.0,
+          "width": 54,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_handler",
+          "type": "LABEL",
+          "text": "담당자",
+          "x": 440.0,
+          "y": 44.0,
+          "width": 44,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_status",
+          "type": "LABEL",
+          "text": "상태",
+          "x": 484.0,
+          "y": 44.0,
+          "width": 55,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        }
+      ]
+    },
+    {
+      "type": "GROUP_HEADER",
+      "groupName": "dept",
+      "height": 20,
+      "backgroundColor": "#F7F9FC",
+      "elements": [
+        {
+          "id": "g_mark",
+          "type": "RECT",
+          "x": 0,
+          "y": 5,
+          "width": 3,
+          "height": 9,
+          "style": {
+            "backgroundColor": "#1B3A5C"
+          }
+        },
+        {
+          "id": "g_dept",
+          "type": "TEXT",
+          "expression": "{DEPT_NAME}",
+          "x": 8,
+          "y": 2,
+          "width": 242,
+          "height": 16,
+          "style": {
+            "fontSize": 10,
+            "bold": true,
+            "color": "#1B3A5C"
+          }
+        },
+        {
+          "id": "g_stat",
+          "type": "TEXT",
+          "expression": "'접수 ' + COUNT(1,'dept') + '건 / 완료 ' + COUNT({COMPLETED_DATE},'dept') + '건 / 평균만족도 ' + NVL(FORMAT(AVG({SATISFACTION},'dept'),'0.0'),'-')",
+          "x": 279.0,
+          "y": 2,
+          "width": 260,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "color": "#555555"
+          }
+        }
+      ]
+    },
+    {
+      "type": "DETAIL",
+      "height": 16,
+      "elements": [
+        {
+          "id": "d_no",
+          "type": "TEXT",
+          "expression": "{COMPLAINT_NO}",
+          "x": 0.0,
+          "y": 0,
+          "width": 76,
+          "height": 16,
+          "style": {
+            "fontSize": 7.5,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_cat",
+          "type": "TEXT",
+          "expression": "{CATEGORY}",
+          "x": 76.0,
+          "y": 0,
+          "width": 52,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_title",
+          "type": "TEXT",
+          "expression": "{TITLE}",
+          "x": 128.0,
+          "y": 0,
+          "width": 150,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_recv",
+          "type": "TEXT",
+          "expression": "{RECEIVED_DATE}",
+          "x": 278.0,
+          "y": 0,
+          "width": 54,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "MM-dd"
+        },
+        {
+          "id": "d_due",
+          "type": "TEXT",
+          "expression": "{DUE_DATE}",
+          "x": 332.0,
+          "y": 0,
+          "width": 54,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "MM-dd"
+        },
+        {
+          "id": "d_comp",
+          "type": "TEXT",
+          "expression": "{COMPLETED_DATE}",
+          "x": 386.0,
+          "y": 0,
+          "width": 54,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "MM-dd",
+          "nullText": "-"
+        },
+        {
+          "id": "d_handler",
+          "type": "TEXT",
+          "expression": "{HANDLER_NAME}",
+          "x": 440.0,
+          "y": 0,
+          "width": 44,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "nullText": "-"
+        },
+        {
+          "id": "d_status_ok",
+          "type": "TEXT",
+          "expression": "{STATUS}",
+          "x": 484.0,
+          "y": 0,
+          "width": 55,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "printWhen": "!({COMPLETED_DATE} != null ? DATEDIFF({DUE_DATE}, {COMPLETED_DATE}) > 0 : DATEDIFF({DUE_DATE}, TODAY()) > 0)"
+        },
+        {
+          "id": "d_status_late",
+          "type": "TEXT",
+          "expression": "{STATUS} + ' (지연)'",
+          "x": 484.0,
+          "y": 0,
+          "width": 55,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "bold": true,
+            "align": "CENTER",
+            "color": "#C0392B",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "printWhen": "{COMPLETED_DATE} != null ? DATEDIFF({DUE_DATE}, {COMPLETED_DATE}) > 0 : DATEDIFF({DUE_DATE}, TODAY()) > 0"
+        }
+      ]
+    },
+    {
+      "type": "GROUP_FOOTER",
+      "groupName": "dept",
+      "height": 8,
+      "elements": [
+        {
+          "id": "gf_line",
+          "type": "LINE",
+          "x": 0,
+          "y": 2,
+          "width": 539.0,
+          "height": 0.6,
+          "style": {
+            "borderColor": "#7A889C"
+          }
+        }
+      ]
+    },
+    {
+      "type": "REPORT_FOOTER",
+      "height": 380,
+      "elements": [
+        {
+          "id": "rf_label",
+          "type": "LABEL",
+          "text": "전체 집계",
+          "x": 0,
+          "y": 4,
+          "width": 80,
+          "height": 16,
+          "style": {
+            "fontSize": 10,
+            "bold": true
+          }
+        },
+        {
+          "id": "rf_total",
+          "type": "TEXT",
+          "expression": "'총 ' + COUNT(1) + '건 · 완료 ' + COUNT({COMPLETED_DATE}) + '건 · 담당자 ' + COUNT_DISTINCT({HANDLER_NAME}) + '명 · 평균만족도 ' + NVL(FORMAT(AVG({SATISFACTION}),'0.00'),'-')",
+          "x": 80,
+          "y": 4,
+          "width": 459.0,
+          "height": 16,
+          "style": {
+            "fontSize": 9,
+            "bold": true
+          }
+        },
+        {
+          "id": "rf_note",
+          "type": "LABEL",
+          "text": "※ 처리기한을 넘긴 건은 상태란에 (지연)으로 표시됩니다. 만족도는 응답된 건만 평균한 값입니다.",
+          "x": 0,
+          "y": 24,
+          "width": 469.0,
+          "height": 14,
+          "style": {
+            "fontSize": 7.5,
+            "color": "#777777"
+          }
+        },
+        {
+          "id": "rf_qr",
+          "type": "QRCODE",
+          "expression": "'KREPORT|CIVIL|' + FORMAT(PRINT_TIME,'yyyyMMddHHmm') + '|' + COUNT(1)",
+          "x": 479.0,
+          "y": 16,
+          "width": 46,
+          "height": 46,
+          "style": {}
+        },
+        {
+          "id": "rf_chart_cat",
+          "type": "CHART",
+          "x": 0,
+          "y": 68,
+          "width": 264,
+          "height": 140,
+          "style": {},
+          "chart": {
+            "type": "COLUMN",
+            "categoryExpression": "{CATEGORY}",
+            "series": [
+              {
+                "name": "접수 건수",
+                "expression": "1",
+                "aggregation": "COUNT"
+              }
+            ],
+            "sort": "VALUE_DESC",
+            "showValues": true,
+            "valueFormat": "#,##0",
+            "title": "민원 유형별 접수 건수"
+          }
+        },
+        {
+          "id": "rf_chart_status",
+          "type": "CHART",
+          "x": 278,
+          "y": 68,
+          "width": 261,
+          "height": 140,
+          "style": {},
+          "chart": {
+            "type": "PIE",
+            "categoryExpression": "{STATUS}",
+            "series": [
+              {
+                "name": "건수",
+                "expression": "1",
+                "aggregation": "COUNT"
+              }
+            ],
+            "sort": "VALUE_DESC",
+            "showValues": true,
+            "valueFormat": "#,##0",
+            "title": "처리 상태 구성비"
+          }
+        },
+        {
+          "id": "rf_chart_stack",
+          "type": "CHART",
+          "x": 0,
+          "y": 216,
+          "width": 539,
+          "height": 160,
+          "style": {},
+          "chart": {
+            "type": "STACKED_BAR",
+            "categoryExpression": "{DEPT_NAME}",
+            "series": [
+              {
+                "name": "처리완료",
+                "expression": "{STATUS} == '처리완료' ? 1 : 0",
+                "aggregation": "SUM"
+              },
+              {
+                "name": "처리중",
+                "expression": "{STATUS} == '처리중' ? 1 : 0",
+                "aggregation": "SUM"
+              },
+              {
+                "name": "반려",
+                "expression": "{STATUS} == '반려' ? 1 : 0",
+                "aggregation": "SUM"
+              }
+            ],
+            "sort": "VALUE_DESC",
+            "showValues": true,
+            "valueFormat": "#,##0",
+            "title": "부서별 처리 상태 (누적)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "PAGE_FOOTER",
+      "height": 20,
+      "elements": [
+        {
+          "id": "pf_line",
+          "type": "LINE",
+          "x": 0,
+          "y": 0,
+          "width": 539.0,
+          "height": 0.6,
+          "style": {
+            "borderColor": "#999999"
+          }
+        },
+        {
+          "id": "pf_page",
+          "type": "TEXT",
+          "expression": "PAGE_NO + ' / ' + PAGE_COUNT",
+          "x": 219.5,
+          "y": 4,
+          "width": 100,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "color": "#444444"
+          }
+        },
+        {
+          "id": "pf_org",
+          "type": "LABEL",
+          "text": "○○시청 민원봉사과",
+          "x": 0,
+          "y": 4,
+          "width": 200,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "color": "#777777"
+          }
+        }
+      ]
+    }
+  ]
+}

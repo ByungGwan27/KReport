@@ -1,0 +1,142 @@
+spring:
+  application:
+    name: kreport
+
+  datasource:
+    url: jdbc:h2:mem:kreport;DB_CLOSE_DELAY=-1;MODE=LEGACY
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 5000
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 100
+
+  sql:
+    init:
+      mode: always
+      # 업무 샘플 테이블. 리포트 데이터셋이 조회할 대상이다.
+      data-locations: classpath:db/sample-data.sql,classpath:db/contract-data.sql
+      schema-locations: classpath:db/sample-schema.sql
+
+  thymeleaf:
+    cache: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+server:
+  port: 8080
+  error:
+    # 오류 응답에 내부 사정을 싣지 않는다. 원인은 서버 로그로 본다.
+    include-message: never
+    include-stacktrace: never
+    include-exception: false
+    include-binding-errors: never
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+  compression:
+    enabled: true
+    mime-types: text/html,text/css,application/javascript,application/json
+    min-response-size: 2KB
+
+kreport:
+  # 데이터셋 조회 제한시간(초)
+  query-timeout-seconds: 30
+  security:
+    # 개발용 내장 계정. 운영에서는 false 로 두고 기관 인증 체계를 연결한다.
+    in-memory-users: true
+    viewer-id: viewer
+    viewer-password: viewer1234!
+    designer-id: designer
+    designer-password: designer1234!
+    admin-id: admin
+    admin-password: admin1234!
+    # 아이디별 소속 부서. 리포트별 열람 권한을 부서 단위로 줄 때 쓴다.
+    # 겸직은 쉼표로 잇는다. 사람이 늘면 ViewerDirectory 구현을 빈으로 올려 인사 연계로 바꾼다.
+    departments:
+      viewer: "1100"
+    # 기본 DB(main)에 조회를 작성할 수 있는 사람. 비우면 편집 권한자 모두 가능.
+    # 거래처처럼 밖의 사람에게 편집 권한을 주면 반드시 채운다.
+    # main-writers:
+    #   roles: [INHOUSE]
+
+  # 거래처·계열 기관 DB. 이름을 리포트 정의의 dataSet.dataSource 에서 가리킨다.
+  # writers 를 비워 두면 아무도 그 DB 에 쿼리를 쓰지 못한다.
+  # datasources:
+  #   partner-a:
+  #     url: jdbc:postgresql://partner-a-db:5432/orders
+  #     username: kreport_ro
+  #     password: ${PARTNER_A_DB_PASSWORD}
+  #     read-only: true
+  #     writers:
+  #       users: [partner-a-editor]
+  image:
+    # 리포트 IMAGE 요소가 읽을 수 있는 위치. 기본은 classpath 안쪽뿐이다.
+    # 외부 주소나 파일 경로를 열면 리포트 정의를 쓰는 사람이 서버를 대신 움직일 수 있다.
+    allow-classpath: true
+    allowed-url-prefixes: []
+    allowed-file-prefixes: []
+  # PDF 출력에 쓸 TTF 경로. 비워 두면 classpath:fonts 와 OS 기본 경로를 차례로 찾는다.
+  font:
+    regular: ""
+    bold: ""
+  # 기동 시 classpath:reports/*.json 을 리포트 정의로 등록할지 여부
+  load-sample-reports: true
+
+logging:
+  level:
+    root: INFO
+    kr.co.kreport: DEBUG
+    org.hibernate.SQL: WARN
+
+---
+# 운영 프로파일 예시. PostgreSQL 을 쓰고 스키마는 마이그레이션 도구로 관리한다.
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kreport
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: never
+  thymeleaf:
+    cache: true
+  h2:
+    console:
+      enabled: false
+
+kreport:
+  load-sample-reports: false
+  security:
+    # 운영에서는 내장 계정을 쓰지 않는다. 기관 인증 체계에 연결한
+    # UserDetailsService 구현을 빈으로 등록해야 한다.
+    in-memory-users: false
+
+logging:
+  level:
+    kr.co.kreport: INFO

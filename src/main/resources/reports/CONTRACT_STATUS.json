@@ -1,0 +1,579 @@
+{
+  "schemaVersion": 1,
+  "reportId": "CONTRACT_STATUS",
+  "name": "계약 체결 현황",
+  "description": "계약방법별 계약 내역과 계약 규모 분포를 함께 본다.",
+  "page": {
+    "paperSize": "A4",
+    "orientation": "PORTRAIT",
+    "marginTop": 36,
+    "marginRight": 28,
+    "marginBottom": 36,
+    "marginLeft": 28
+  },
+  "dataSet": {
+    "sourceType": "SQL",
+    "sql": "select contract_no, dept_name, method, contract_kind, subject,\n       vendor_name, contract_date, amount\n  from contract_award\n where amount >= :minAmount\n   and method like :method\n order by method, amount desc",
+    "maxRows": 50000
+  },
+  "parameters": [
+    {
+      "name": "fiscalYear",
+      "label": "회계연도",
+      "dataType": "NUMBER",
+      "required": true,
+      "defaultValue": "2026"
+    },
+    {
+      "name": "minAmount",
+      "label": "최소 계약금액",
+      "dataType": "NUMBER",
+      "required": true,
+      "defaultValue": "0"
+    },
+    {
+      "name": "method",
+      "label": "계약방법",
+      "dataType": "STRING",
+      "required": true,
+      "defaultValue": "%",
+      "options": [
+        {
+          "value": "%",
+          "label": "전체"
+        },
+        {
+          "value": "일반경쟁",
+          "label": "일반경쟁"
+        },
+        {
+          "value": "제한경쟁",
+          "label": "제한경쟁"
+        },
+        {
+          "value": "지명경쟁",
+          "label": "지명경쟁"
+        },
+        {
+          "value": "수의계약",
+          "label": "수의계약"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "method",
+      "expression": "{METHOD}",
+      "pageBreak": false,
+      "resetPageNumber": false,
+      "repeatHeaderOnNewPage": true
+    }
+  ],
+  "bands": [
+    {
+      "type": "PAGE_HEADER",
+      "height": 58,
+      "elements": [
+        {
+          "id": "title",
+          "type": "LABEL",
+          "text": "${@fiscalYear}년도 계약 체결 현황",
+          "x": 0,
+          "y": 0,
+          "width": 539.0,
+          "height": 22,
+          "style": {
+            "fontSize": 15,
+            "bold": true,
+            "align": "CENTER"
+          }
+        },
+        {
+          "id": "printed",
+          "type": "LABEL",
+          "text": "출력일시: ${FORMAT(PRINT_TIME,'yyyy-MM-dd HH:mm')}",
+          "x": 339.0,
+          "y": 24,
+          "width": 200,
+          "height": 12,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "color": "#555555"
+          }
+        },
+        {
+          "id": "h_no",
+          "type": "LABEL",
+          "text": "계약번호",
+          "x": 0.0,
+          "y": 40,
+          "width": 84,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_kind",
+          "type": "LABEL",
+          "text": "종류",
+          "x": 84.0,
+          "y": 40,
+          "width": 36,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_subject",
+          "type": "LABEL",
+          "text": "계약 건명",
+          "x": 120.0,
+          "y": 40,
+          "width": 141,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_dept",
+          "type": "LABEL",
+          "text": "주관부서",
+          "x": 261.0,
+          "y": 40,
+          "width": 64,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_vendor",
+          "type": "LABEL",
+          "text": "계약상대자",
+          "x": 325.0,
+          "y": 40,
+          "width": 100,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_date",
+          "type": "LABEL",
+          "text": "계약일",
+          "x": 425.0,
+          "y": 40,
+          "width": 52,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_amount",
+          "type": "LABEL",
+          "text": "계약금액",
+          "x": 477.0,
+          "y": 40,
+          "width": 62,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        }
+      ]
+    },
+    {
+      "type": "GROUP_HEADER",
+      "groupName": "method",
+      "height": 20,
+      "backgroundColor": "#F7F9FC",
+      "elements": [
+        {
+          "id": "g_mark",
+          "type": "RECT",
+          "x": 0,
+          "y": 5,
+          "width": 3,
+          "height": 9,
+          "style": {
+            "backgroundColor": "#1B3A5C"
+          }
+        },
+        {
+          "id": "g_method",
+          "type": "TEXT",
+          "expression": "{METHOD}",
+          "x": 8,
+          "y": 2,
+          "width": 200,
+          "height": 16,
+          "style": {
+            "fontSize": 10,
+            "bold": true,
+            "color": "#1B3A5C"
+          }
+        },
+        {
+          "id": "g_stat",
+          "type": "TEXT",
+          "expression": "'건수 ' + COUNT(1,'method') + '건 / 계약액 ' + FORMAT(SUM({AMOUNT},'method'),'#,##0') + '원'",
+          "x": 239.0,
+          "y": 2,
+          "width": 300,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "color": "#555555"
+          }
+        }
+      ]
+    },
+    {
+      "type": "DETAIL",
+      "height": 16,
+      "elements": [
+        {
+          "id": "d_no",
+          "type": "TEXT",
+          "expression": "{CONTRACT_NO}",
+          "x": 0.0,
+          "y": 0,
+          "width": 84,
+          "height": 16,
+          "style": {
+            "fontSize": 7.5,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_kind",
+          "type": "TEXT",
+          "expression": "{CONTRACT_KIND}",
+          "x": 84.0,
+          "y": 0,
+          "width": 36,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_subject",
+          "type": "TEXT",
+          "expression": "{SUBJECT}",
+          "x": 120.0,
+          "y": 0,
+          "width": 141,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_dept",
+          "type": "TEXT",
+          "expression": "{DEPT_NAME}",
+          "x": 261.0,
+          "y": 0,
+          "width": 64,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_vendor",
+          "type": "TEXT",
+          "expression": "{VENDOR_NAME}",
+          "x": 325.0,
+          "y": 0,
+          "width": 100,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_date",
+          "type": "TEXT",
+          "expression": "{CONTRACT_DATE}",
+          "x": 425.0,
+          "y": 0,
+          "width": 52,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "MM-dd"
+        },
+        {
+          "id": "d_amount",
+          "type": "TEXT",
+          "expression": "{AMOUNT}",
+          "x": 477.0,
+          "y": 0,
+          "width": 62,
+          "height": 16,
+          "style": {
+            "fontSize": 7.5,
+            "align": "RIGHT",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "#,##0"
+        }
+      ]
+    },
+    {
+      "type": "GROUP_FOOTER",
+      "groupName": "method",
+      "height": 8,
+      "elements": [
+        {
+          "id": "gf_line",
+          "type": "LINE",
+          "x": 0,
+          "y": 2,
+          "width": 539.0,
+          "height": 0.6,
+          "style": {
+            "borderColor": "#7A889C"
+          }
+        }
+      ]
+    },
+    {
+      "type": "REPORT_FOOTER",
+      "height": 208,
+      "elements": [
+        {
+          "id": "rf_label",
+          "type": "LABEL",
+          "text": "총 계",
+          "x": 0,
+          "y": 3,
+          "width": 477.0,
+          "height": 18,
+          "style": {
+            "fontSize": 9.5,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#D8E0EA",
+            "borderTop": 0.8,
+            "borderRight": 0.8,
+            "borderBottom": 0.8,
+            "borderLeft": 0.8,
+            "borderColor": "#44546A",
+            "paddingRight": 6
+          }
+        },
+        {
+          "id": "rf_amount",
+          "type": "TEXT",
+          "expression": "SUM({AMOUNT})",
+          "x": 477.0,
+          "y": 3,
+          "width": 62,
+          "height": 18,
+          "style": {
+            "fontSize": 7.5,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#D8E0EA",
+            "borderTop": 0.8,
+            "borderRight": 0.8,
+            "borderBottom": 0.8,
+            "borderLeft": 0.8,
+            "borderColor": "#44546A",
+            "paddingRight": 3
+          },
+          "format": "#,##0"
+        },
+        {
+          "id": "rf_chart_method",
+          "type": "CHART",
+          "x": 0,
+          "y": 30,
+          "width": 250,
+          "height": 150,
+          "style": {},
+          "chart": {
+            "type": "BAR",
+            "categoryExpression": "{METHOD}",
+            "series": [
+              {
+                "name": "계약액",
+                "expression": "{AMOUNT}",
+                "aggregation": "SUM"
+              }
+            ],
+            "sort": "VALUE_DESC",
+            "showValues": true,
+            "valueFormat": "#,##0",
+            "title": "계약방법별 계약액"
+          }
+        },
+        {
+          "id": "rf_chart_scale",
+          "type": "CHART",
+          "x": 264,
+          "y": 30,
+          "width": 275,
+          "height": 150,
+          "style": {},
+          "chart": {
+            "type": "LINE",
+            "categoryExpression": "{CONTRACT_NO}",
+            "series": [
+              {
+                "name": "계약금액",
+                "expression": "{AMOUNT}",
+                "aggregation": "SUM"
+              }
+            ],
+            "sort": "VALUE_DESC",
+            "valueFormat": "#,##0",
+            "title": "계약 규모 분포 (로그 축)",
+            "valueScale": "LOG"
+          }
+        },
+        {
+          "id": "rf_note",
+          "type": "LABEL",
+          "text": "※ 계약 규모 분포는 로그 축입니다. 눈금 한 칸이 10배를 뜻하며, 금액대가 크게 다른 계약을 한 그림에서 함께 보기 위한 것입니다.",
+          "x": 0,
+          "y": 188,
+          "width": 539.0,
+          "height": 14,
+          "style": {
+            "fontSize": 7.5,
+            "color": "#777777"
+          }
+        }
+      ]
+    },
+    {
+      "type": "PAGE_FOOTER",
+      "height": 20,
+      "elements": [
+        {
+          "id": "pf_line",
+          "type": "LINE",
+          "x": 0,
+          "y": 0,
+          "width": 539.0,
+          "height": 0.6,
+          "style": {
+            "borderColor": "#999999"
+          }
+        },
+        {
+          "id": "pf_page",
+          "type": "TEXT",
+          "expression": "PAGE_NO + ' / ' + PAGE_COUNT",
+          "x": 219.5,
+          "y": 4,
+          "width": 100,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "color": "#444444"
+          }
+        },
+        {
+          "id": "pf_org",
+          "type": "LABEL",
+          "text": "○○시청 회계과",
+          "x": 0,
+          "y": 4,
+          "width": 200,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "color": "#777777"
+          }
+        }
+      ]
+    }
+  ]
+}

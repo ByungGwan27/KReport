@@ -1,0 +1,288 @@
+/* KReport 관리 화면 공통 스타일 */
+
+:root {
+    --bg: #f4f6f9;
+    --panel: #ffffff;
+    --line: #dde3ec;
+    --line-strong: #c3ccdb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --primary: #1b4f8a;
+    --primary-hover: #163f6f;
+    --accent: #0d7a5f;
+    --danger: #c0392b;
+    --radius: 4px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ 헤더 */
+
+.gnb {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: 48px;
+    padding: 0 20px;
+    background: var(--primary);
+    color: #fff;
+}
+
+.gnb .brand {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #fff;
+}
+
+.gnb .brand span {
+    font-weight: 400;
+    font-size: 12px;
+    opacity: 0.8;
+    margin-left: 6px;
+}
+
+.gnb nav {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.gnb nav a {
+    color: #dbe6f3;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+}
+
+.gnb nav a:hover,
+.gnb nav a.on {
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+    text-decoration: none;
+}
+
+/* ------------------------------------------------------------------ 레이아웃 */
+
+.wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0 0 14px;
+}
+
+.page-title h1 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.page-title p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.toolbar .spacer {
+    flex: 1;
+}
+
+/* ------------------------------------------------------------------ 폼 */
+
+input[type=text], input[type=number], input[type=date], select, textarea {
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: #fff;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+textarea {
+    height: auto;
+    padding: 6px 8px;
+    line-height: 1.45;
+    resize: vertical;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: 2px solid rgba(27, 79, 138, .35);
+    outline-offset: -1px;
+}
+
+label.field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+label.field > span {
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.btn {
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: #fff;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #eef2f7;
+}
+
+.btn.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn.danger {
+    color: var(--danger);
+    border-color: #e5b5ae;
+}
+
+.btn:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+/* ------------------------------------------------------------------ 표 */
+
+table.grid {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+table.grid th, table.grid td {
+    border: 1px solid var(--line);
+    padding: 7px 9px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+table.grid th {
+    background: #eef2f7;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+table.grid tbody tr:hover {
+    background: #f7fafd;
+}
+
+table.grid td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+table.grid td.center {
+    text-align: center;
+}
+
+.empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: #e8eef6;
+    color: #33506f;
+    font-size: 11px;
+}
+
+.tag.off {
+    background: #f0f0f0;
+    color: #888;
+}
+
+.tag.ok {
+    background: #e2f3ec;
+    color: #16624b;
+}
+
+.tag.fail {
+    background: #fae8e5;
+    color: #a33125;
+}
+
+.msg {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid;
+    margin-bottom: 12px;
+}
+
+.msg.error {
+    background: #fdf2f0;
+    border-color: #f0c8c1;
+    color: #a33125;
+}
+
+.msg.info {
+    background: #eef4fb;
+    border-color: #c8dbf0;
+    color: #204b77;
+}
+
+.msg ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+}

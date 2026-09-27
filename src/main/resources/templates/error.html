@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>오류 - KReport</title>
+    <link rel="stylesheet" th:href="@{/css/kreport.css}">
+</head>
+<!--
+  기본 오류 화면(Whitelabel)은 쓰는 사람에게 도움이 안 되면서 프레임워크와 매핑 구조를
+  그대로 알려 준다. 무슨 일이 일어났는지만 우리말로 알리고 나머지는 서버 로그에 남긴다.
+-->
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh">
+
+<div class="panel" style="width:420px;padding:28px;text-align:center">
+    <div style="font-size:20px;font-weight:700;color:var(--primary)">KReport</div>
+
+    <div style="font-size:40px;font-weight:700;color:var(--line-strong);margin:14px 0 4px"
+         th:text="${status} ?: '오류'">500</div>
+
+    <p style="margin:0 0 4px;font-weight:700" th:switch="${status}">
+        <span th:case="403">이 기능을 사용할 권한이 없습니다.</span>
+        <span th:case="404">요청하신 화면을 찾을 수 없습니다.</span>
+        <span th:case="*">요청을 처리하지 못했습니다.</span>
+    </p>
+
+    <p style="margin:0;color:var(--muted);font-size:12px;line-height:1.7" th:switch="${status}">
+        <span th:case="403">
+            필요한 권한은 담당 부서에 문의하세요.<br>
+            리포트 정의 편집과 실행 이력 열람은 따로 부여됩니다.
+        </span>
+        <span th:case="*">같은 문제가 반복되면 관리자에게 알려 주세요.</span>
+    </p>
+
+    <div style="margin-top:20px;display:flex;gap:6px;justify-content:center">
+        <a class="btn primary" th:href="@{/}">리포트 목록</a>
+        <a class="btn" th:href="@{/login}">다시 로그인</a>
+    </div>
+</div>
+
+</body>
+</html>

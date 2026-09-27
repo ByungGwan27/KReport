@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' - KReport'">KReport</title>
+    <link rel="stylesheet" th:href="@{/css/kreport.css}">
+</head>
+<body>
+
+<!-- 권한이 없는 기능은 링크 자체를 내린다. 서버에서도 막지만, 눌러 봐야 거부되는
+     메뉴를 보여 주면 쓰는 사람이 자기 권한을 잘못 짐작하게 된다. -->
+<header class="gnb" th:fragment="gnb(current)">
+    <a class="brand" th:href="@{/}">KReport <span>웹 리포팅</span></a>
+    <nav>
+        <a th:href="@{/}" th:classappend="${current == 'list'} ? 'on'">리포트 목록</a>
+        <a sec:authorize="hasRole('DESIGNER')"
+           th:href="@{/designer}" th:classappend="${current == 'designer'} ? 'on'">디자이너</a>
+        <a sec:authorize="hasRole('ADMIN')"
+           th:href="@{/logs}" th:classappend="${current == 'logs'} ? 'on'">실행 이력</a>
+    </nav>
+    <form method="post" th:action="@{/logout}"
+          style="display:flex;align-items:center;gap:8px;margin-left:16px">
+        <span style="color:#dbe6f3;font-size:12px" sec:authentication="name">사용자</span>
+        <button type="submit" class="btn"
+                style="height:26px;padding:0 10px;font-size:12px">로그아웃</button>
+    </form>
+</header>
+
+</body>
+</html>

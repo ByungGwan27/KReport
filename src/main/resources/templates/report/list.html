@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko">
+<head th:replace="~{layout :: head('리포트 목록')}"></head>
+<body>
+
+<header th:replace="~{layout :: gnb('list')}"></header>
+
+<div class="wrap">
+
+    <div class="page-title">
+        <h1>리포트 목록</h1>
+        <p>등록된 리포트를 조회하고 실행합니다.</p>
+    </div>
+
+    <form class="toolbar" method="get" th:action="@{/}">
+        <label class="field">
+            <span>검색</span>
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="리포트명 또는 ID" size="28">
+        </label>
+        <button class="btn" type="submit">조회</button>
+        <div class="spacer"></div>
+        <a class="btn primary" sec:authorize="hasRole('DESIGNER')"
+           th:href="@{/designer}">새 리포트 만들기</a>
+    </form>
+
+    <div class="panel" style="padding:0">
+        <table class="grid">
+            <colgroup>
+                <col style="width:90px">
+                <col style="width:150px">
+                <col>
+                <col style="width:70px">
+                <col style="width:130px">
+                <col style="width:200px">
+            </colgroup>
+            <thead>
+            <tr>
+                <th>분류</th>
+                <th>리포트 ID</th>
+                <th>리포트명</th>
+                <th>사용</th>
+                <th>열람</th>
+                <th>최종 수정</th>
+                <th>실행</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${reports}">
+                <td class="center"><span class="tag" th:text="${r.category} ?: '기본'">재정</span></td>
+                <td th:text="${r.reportId}">BUDGET_EXEC</td>
+                <td>
+                    <a th:href="@{/viewer/{id}(id=${r.reportId})}" th:text="${r.name}">부서별 세출 집행 현황</a>
+                    <div style="color:#6b7280;font-size:11px" th:text="${r.description}"></div>
+                </td>
+                <td class="center">
+                    <span class="tag ok" th:if="${r.active}">사용</span>
+                    <span class="tag off" th:unless="${r.active}">중지</span>
+                </td>
+                <!--
+                  통제 중인 리포트를 목록에서 바로 알아볼 수 있게 표시한다. 자물쇠가 없으면
+                  전 직원이 보는 자료라는 뜻이라, 개인정보가 섞인 리포트를 공개로 둔 실수가
+                  목록에서 눈에 띈다.
+                -->
+                <td class="center">
+                    <span class="tag" th:if="${r.restricted}" title="지정된 부서·담당자만 열람">🔒 제한</span>
+                    <span class="tag off" th:unless="${r.restricted}">전체</span>
+                </td>
+                <td class="center"
+                    th:text="${r.updatedAt != null} ? ${#temporals.format(r.updatedAt, 'yyyy-MM-dd HH:mm')} : '-'">
+                </td>
+                <td class="center">
+                    <a class="btn" th:href="@{/viewer/{id}(id=${r.reportId})}">뷰어</a>
+                    <a class="btn" sec:authorize="hasRole('DESIGNER')"
+                       th:href="@{/designer/{id}(id=${r.reportId})}">편집</a>
+                    <a class="btn" sec:authorize="hasRole('ADMIN')"
+                       th:href="@{/access/{id}(id=${r.reportId})}">열람권한</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(reports)}">
+                <td colspan="7" class="empty">등록된 리포트가 없습니다. 디자이너에서 새로 만들어 보세요.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,798 @@
+{
+  "schemaVersion": 1,
+  "reportId": "BUDGET_EXEC",
+  "name": "부서별 세출 집행 현황",
+  "description": "회계연도별 부서 세출 예산의 집행 실적을 부서 소계와 총계로 집계한다.",
+  "page": {
+    "paperSize": "A4",
+    "orientation": "PORTRAIT",
+    "marginTop": 36,
+    "marginRight": 28,
+    "marginBottom": 36,
+    "marginLeft": 28
+  },
+  "dataSet": {
+    "sourceType": "SQL",
+    "sql": "select dept_code, dept_name, program_name, account_name, exec_date,\n       vendor_name, budget_amt, exec_amt, status\n  from budget_execution\n where fiscal_year = :fiscalYear\n   and dept_code like :deptCode\n order by dept_code, exec_date, exec_id",
+    "maxRows": 50000
+  },
+  "parameters": [
+    {
+      "name": "fiscalYear",
+      "label": "회계연도",
+      "dataType": "NUMBER",
+      "required": true,
+      "defaultValue": "2026"
+    },
+    {
+      "name": "deptCode",
+      "label": "부서",
+      "dataType": "STRING",
+      "required": true,
+      "defaultValue": "%",
+      "options": [
+        {
+          "value": "%",
+          "label": "전체"
+        },
+        {
+          "value": "1100",
+          "label": "기획예산담당관"
+        },
+        {
+          "value": "1200",
+          "label": "행정지원과"
+        },
+        {
+          "value": "2100",
+          "label": "복지정책과"
+        },
+        {
+          "value": "2200",
+          "label": "환경관리과"
+        },
+        {
+          "value": "3100",
+          "label": "도시계획과"
+        },
+        {
+          "value": "3200",
+          "label": "교통행정과"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "dept",
+      "expression": "{DEPT_CODE}",
+      "pageBreak": false,
+      "resetPageNumber": false,
+      "repeatHeaderOnNewPage": true
+    }
+  ],
+  "bands": [
+    {
+      "type": "PAGE_HEADER",
+      "height": 58,
+      "elements": [
+        {
+          "id": "title",
+          "type": "LABEL",
+          "text": "${@fiscalYear}년도 부서별 세출 집행 현황",
+          "x": 0,
+          "y": 0,
+          "width": 539.0,
+          "height": 22,
+          "style": {
+            "fontSize": 15,
+            "bold": true,
+            "align": "CENTER"
+          }
+        },
+        {
+          "id": "printed",
+          "type": "LABEL",
+          "text": "출력일시: ${FORMAT(PRINT_TIME,'yyyy-MM-dd HH:mm')}",
+          "x": 339.0,
+          "y": 24,
+          "width": 200,
+          "height": 12,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "color": "#555555"
+          }
+        },
+        {
+          "id": "h_no",
+          "type": "LABEL",
+          "text": "순번",
+          "x": 0.0,
+          "y": 40.0,
+          "width": 26,
+          "height": 18.0,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_date",
+          "type": "LABEL",
+          "text": "집행일자",
+          "x": 26.0,
+          "y": 40.0,
+          "width": 56,
+          "height": 18.0,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_program",
+          "type": "LABEL",
+          "text": "사업명",
+          "x": 82.0,
+          "y": 40.0,
+          "width": 137,
+          "height": 18.0,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_account",
+          "type": "LABEL",
+          "text": "예산과목",
+          "x": 219.0,
+          "y": 40.0,
+          "width": 62,
+          "height": 18.0,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_vendor",
+          "type": "LABEL",
+          "text": "거래처",
+          "x": 281.0,
+          "y": 40.0,
+          "width": 94,
+          "height": 18.0,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_budget",
+          "type": "LABEL",
+          "text": "예산액",
+          "x": 375.0,
+          "y": 40.0,
+          "width": 66,
+          "height": 18.0,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_exec",
+          "type": "LABEL",
+          "text": "집행액",
+          "x": 441.0,
+          "y": 40.0,
+          "width": 66,
+          "height": 18.0,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        },
+        {
+          "id": "h_rate",
+          "type": "LABEL",
+          "text": "집행률",
+          "x": 507.0,
+          "y": 40.0,
+          "width": 32,
+          "height": 18.0,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "CENTER",
+            "backgroundColor": "#E4EAF2",
+            "borderTop": 0.6,
+            "borderRight": 0.6,
+            "borderBottom": 0.6,
+            "borderLeft": 0.6,
+            "borderColor": "#7A889C"
+          }
+        }
+      ]
+    },
+    {
+      "type": "GROUP_HEADER",
+      "groupName": "dept",
+      "height": 20,
+      "backgroundColor": "#F7F9FC",
+      "elements": [
+        {
+          "id": "g_mark",
+          "type": "RECT",
+          "x": 0,
+          "y": 5,
+          "width": 3,
+          "height": 9,
+          "style": {
+            "backgroundColor": "#1B3A5C"
+          }
+        },
+        {
+          "id": "g_dept",
+          "type": "TEXT",
+          "expression": "{DEPT_NAME} + '  (' + {DEPT_CODE} + ')'",
+          "x": 8,
+          "y": 2,
+          "width": 292,
+          "height": 16,
+          "style": {
+            "fontSize": 10,
+            "bold": true,
+            "color": "#1B3A5C"
+          }
+        },
+        {
+          "id": "g_cnt",
+          "type": "TEXT",
+          "expression": "'건수 ' + COUNT(1,'dept') + '건'",
+          "x": 419.0,
+          "y": 2,
+          "width": 120,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "color": "#555555"
+          }
+        }
+      ]
+    },
+    {
+      "type": "DETAIL",
+      "height": 16,
+      "elements": [
+        {
+          "id": "d_no",
+          "type": "TEXT",
+          "expression": "ROW_NUM",
+          "x": 0.0,
+          "y": 0,
+          "width": 26,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_date",
+          "type": "TEXT",
+          "expression": "{EXEC_DATE}",
+          "x": 26.0,
+          "y": 0,
+          "width": 56,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "yyyy-MM-dd"
+        },
+        {
+          "id": "d_program",
+          "type": "TEXT",
+          "expression": "{PROGRAM_NAME}",
+          "x": 82.0,
+          "y": 0,
+          "width": 137,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_account",
+          "type": "TEXT",
+          "expression": "{ACCOUNT_NAME}",
+          "x": 219.0,
+          "y": 0,
+          "width": 62,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          }
+        },
+        {
+          "id": "d_vendor",
+          "type": "TEXT",
+          "expression": "{VENDOR_NAME}",
+          "x": 281.0,
+          "y": 0,
+          "width": 94,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "nullText": "-"
+        },
+        {
+          "id": "d_budget",
+          "type": "TEXT",
+          "expression": "{BUDGET_AMT}",
+          "x": 375.0,
+          "y": 0,
+          "width": 66,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "#,##0"
+        },
+        {
+          "id": "d_exec",
+          "type": "TEXT",
+          "expression": "{EXEC_AMT}",
+          "x": 441.0,
+          "y": 0,
+          "width": 66,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "#,##0"
+        },
+        {
+          "id": "d_rate",
+          "type": "TEXT",
+          "expression": "{BUDGET_AMT} > 0 ? {EXEC_AMT} / {BUDGET_AMT} : 0",
+          "x": 507.0,
+          "y": 0,
+          "width": 32,
+          "height": 16,
+          "style": {
+            "fontSize": 8,
+            "align": "RIGHT",
+            "borderBottom": 0.4,
+            "borderColor": "#CCCCCC"
+          },
+          "format": "0%"
+        }
+      ]
+    },
+    {
+      "type": "GROUP_FOOTER",
+      "groupName": "dept",
+      "height": 20,
+      "elements": [
+        {
+          "id": "gf_label",
+          "type": "LABEL",
+          "text": "부서 소계",
+          "x": 0,
+          "y": 1,
+          "width": 375.0,
+          "height": 16,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#F1F4F8",
+            "borderTop": 0.6,
+            "borderBottom": 0.6,
+            "borderColor": "#7A889C",
+            "paddingRight": 6
+          }
+        },
+        {
+          "id": "gf_budget",
+          "type": "TEXT",
+          "expression": "SUM({BUDGET_AMT},'dept')",
+          "x": 375.0,
+          "y": 1,
+          "width": 66,
+          "height": 16,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#F1F4F8",
+            "borderTop": 0.6,
+            "borderBottom": 0.6,
+            "borderColor": "#7A889C"
+          },
+          "format": "#,##0"
+        },
+        {
+          "id": "gf_exec",
+          "type": "TEXT",
+          "expression": "SUM({EXEC_AMT},'dept')",
+          "x": 441.0,
+          "y": 1,
+          "width": 66,
+          "height": 16,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#F1F4F8",
+            "borderTop": 0.6,
+            "borderBottom": 0.6,
+            "borderColor": "#7A889C"
+          },
+          "format": "#,##0"
+        },
+        {
+          "id": "gf_rate",
+          "type": "TEXT",
+          "expression": "SUM({BUDGET_AMT},'dept') > 0 ? SUM({EXEC_AMT},'dept') / SUM({BUDGET_AMT},'dept') : 0",
+          "x": 507.0,
+          "y": 1,
+          "width": 32,
+          "height": 16,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#F1F4F8",
+            "borderTop": 0.6,
+            "borderBottom": 0.6,
+            "borderColor": "#7A889C"
+          },
+          "format": "0%"
+        }
+      ]
+    },
+    {
+      "type": "REPORT_FOOTER",
+      "height": 488,
+      "elements": [
+        {
+          "id": "rf_label",
+          "type": "LABEL",
+          "text": "총 계",
+          "x": 0,
+          "y": 3,
+          "width": 375.0,
+          "height": 18,
+          "style": {
+            "fontSize": 9.5,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#D8E0EA",
+            "borderTop": 0.8,
+            "borderRight": 0.8,
+            "borderBottom": 0.8,
+            "borderLeft": 0.8,
+            "borderColor": "#44546A",
+            "paddingRight": 6
+          }
+        },
+        {
+          "id": "rf_budget",
+          "type": "TEXT",
+          "expression": "SUM({BUDGET_AMT})",
+          "x": 375.0,
+          "y": 3,
+          "width": 66,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#D8E0EA",
+            "borderTop": 0.8,
+            "borderRight": 0.8,
+            "borderBottom": 0.8,
+            "borderLeft": 0.8,
+            "borderColor": "#44546A",
+            "paddingRight": 3
+          },
+          "format": "#,##0"
+        },
+        {
+          "id": "rf_exec",
+          "type": "TEXT",
+          "expression": "SUM({EXEC_AMT})",
+          "x": 441.0,
+          "y": 3,
+          "width": 66,
+          "height": 18,
+          "style": {
+            "fontSize": 9,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#D8E0EA",
+            "borderTop": 0.8,
+            "borderRight": 0.8,
+            "borderBottom": 0.8,
+            "borderLeft": 0.8,
+            "borderColor": "#44546A",
+            "paddingRight": 3
+          },
+          "format": "#,##0"
+        },
+        {
+          "id": "rf_rate",
+          "type": "TEXT",
+          "expression": "SUM({BUDGET_AMT}) > 0 ? SUM({EXEC_AMT}) / SUM({BUDGET_AMT}) : 0",
+          "x": 507.0,
+          "y": 3,
+          "width": 32,
+          "height": 18,
+          "style": {
+            "fontSize": 9.5,
+            "bold": true,
+            "align": "RIGHT",
+            "backgroundColor": "#D8E0EA",
+            "borderTop": 0.8,
+            "borderRight": 0.8,
+            "borderBottom": 0.8,
+            "borderLeft": 0.8,
+            "borderColor": "#44546A"
+          },
+          "format": "0%"
+        },
+        {
+          "id": "rf_korean",
+          "type": "LABEL",
+          "text": "집행액 합계: 금 ",
+          "x": 0,
+          "y": 26,
+          "width": 80,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "color": "#444444"
+          }
+        },
+        {
+          "id": "rf_korean_v",
+          "type": "TEXT",
+          "expression": "KORNUM(SUM({EXEC_AMT})) + '원정'",
+          "x": 80,
+          "y": 26,
+          "width": 300,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "bold": true,
+            "color": "#444444"
+          }
+        },
+        {
+          "id": "rf_chart_dept",
+          "type": "CHART",
+          "x": 0,
+          "y": 48,
+          "width": 306,
+          "height": 150,
+          "style": {},
+          "chart": {
+            "type": "BAR",
+            "categoryExpression": "{DEPT_NAME}",
+            "series": [
+              {
+                "name": "집행액",
+                "expression": "{EXEC_AMT}",
+                "aggregation": "SUM"
+              }
+            ],
+            "sort": "VALUE_DESC",
+            "showValues": true,
+            "valueFormat": "#,##0",
+            "title": "부서별 집행액"
+          }
+        },
+        {
+          "id": "rf_chart_account",
+          "type": "CHART",
+          "x": 320,
+          "y": 48,
+          "width": 219,
+          "height": 150,
+          "style": {},
+          "chart": {
+            "type": "DONUT",
+            "categoryExpression": "{ACCOUNT_NAME}",
+            "series": [
+              {
+                "name": "집행액",
+                "expression": "{EXEC_AMT}",
+                "aggregation": "SUM"
+              }
+            ],
+            "sort": "VALUE_DESC",
+            "maxCategories": 6,
+            "showValues": true,
+            "valueFormat": "#,##0",
+            "title": "예산과목별 구성비"
+          }
+        },
+        {
+          "id": "rf_chart_month",
+          "type": "CHART",
+          "x": 0,
+          "y": 206,
+          "width": 539,
+          "height": 120,
+          "style": {},
+          "chart": {
+            "type": "LINE",
+            "categoryExpression": "FORMAT({EXEC_DATE},'MM') + '월'",
+            "series": [
+              {
+                "name": "집행액",
+                "expression": "{EXEC_AMT}",
+                "aggregation": "SUM"
+              }
+            ],
+            "sort": "CATEGORY_ASC",
+            "valueFormat": "#,##0",
+            "title": "월별 집행 추이"
+          }
+        },
+        {
+          "id": "rf_chart_pct",
+          "type": "CHART",
+          "x": 0,
+          "y": 334,
+          "width": 539,
+          "height": 150,
+          "style": {},
+          "chart": {
+            "type": "PERCENT_BAR",
+            "categoryExpression": "{DEPT_NAME}",
+            "series": [
+              {
+                "name": "집행완료",
+                "expression": "{STATUS} == '집행완료' ? {EXEC_AMT} : 0",
+                "aggregation": "SUM"
+              },
+              {
+                "name": "부분집행",
+                "expression": "{STATUS} == '부분집행' ? {EXEC_AMT} : 0",
+                "aggregation": "SUM"
+              },
+              {
+                "name": "이월",
+                "expression": "{STATUS} == '이월' ? {EXEC_AMT} : 0",
+                "aggregation": "SUM"
+              }
+            ],
+            "sort": "VALUE_DESC",
+            "showValues": true,
+            "valueFormat": "#,##0",
+            "title": "부서별 집행 상태 구성비"
+          }
+        }
+      ]
+    },
+    {
+      "type": "PAGE_FOOTER",
+      "height": 20,
+      "elements": [
+        {
+          "id": "pf_line",
+          "type": "LINE",
+          "x": 0,
+          "y": 0,
+          "width": 539.0,
+          "height": 0.6,
+          "style": {
+            "borderColor": "#999999"
+          }
+        },
+        {
+          "id": "pf_page",
+          "type": "TEXT",
+          "expression": "PAGE_NO + ' / ' + PAGE_COUNT",
+          "x": 219.5,
+          "y": 4,
+          "width": 100,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "align": "CENTER",
+            "color": "#444444"
+          }
+        },
+        {
+          "id": "pf_org",
+          "type": "LABEL",
+          "text": "○○시청 기획예산담당관",
+          "x": 0,
+          "y": 4,
+          "width": 200,
+          "height": 14,
+          "style": {
+            "fontSize": 8,
+            "color": "#777777"
+          }
+        }
+      ]
+    }
+  ]
+}

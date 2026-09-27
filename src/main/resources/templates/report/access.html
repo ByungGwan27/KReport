@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{layout :: head('열람 권한')}"></head>
+<body>
+
+<header th:replace="~{layout :: gnb('')}"></header>
+
+<div class="wrap" id="accessRoot" th:data-report-id="${definition.reportId}">
+
+    <div class="page-title">
+        <h1>열람 권한 <span style="color:var(--muted)" th:text="${definition.reportId}">CIVIL_STATUS</span></h1>
+        <p th:text="${definition.name}">민원 처리 현황 대장</p>
+    </div>
+
+    <!--
+      통제 방식과 규칙을 한 화면에 둔다. 규칙만 보이면 그 규칙이 실제로 적용되는 상태인지
+      알 수 없어서, 규칙을 열심히 달아 놓고 전체 공개로 남겨 두는 일이 생긴다.
+    -->
+    <div class="panel" style="padding:18px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <strong>통제 방식</strong>
+            <select id="mode" class="input" style="width:220px">
+                <option value="PUBLIC">전체 공개 - 조회 권한자 모두</option>
+                <option value="RESTRICTED">제한 - 아래 규칙에 걸린 사람만</option>
+            </select>
+            <button class="btn primary" id="saveMode">변경</button>
+            <span id="modeHint" style="color:var(--muted);font-size:12px"></span>
+        </div>
+        <p style="margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.7">
+            제한으로 두고 규칙이 하나도 없으면 아무도 보지 못합니다. 규칙을 실수로 지웠을 때
+            자료가 열리는 쪽보다 닫히는 쪽으로 틀리게 한 것입니다.<br>
+            관리자와 편집 권한자는 통제를 받지 않습니다. 편집 권한자는 같은 표를 읽는 리포트를
+            새로 만들 수 있어, 열람만 막는 것은 통제가 있다는 착각만 주기 때문입니다.
+        </p>
+    </div>
+
+    <div class="panel" style="padding:18px;margin-bottom:14px">
+        <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap">
+            <div>
+                <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px">대상 종류</label>
+                <select id="grantType" class="input" style="width:140px">
+                    <option value="DEPARTMENT">부서</option>
+                    <option value="USER">사용자</option>
+                    <option value="ROLE">권한</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px">값</label>
+                <input id="grantValue" class="input" style="width:180px" placeholder="예: 2100">
+            </div>
+            <div style="flex:1;min-width:200px">
+                <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px">사유</label>
+                <input id="note" class="input" style="width:100%" placeholder="감사에서 가장 먼저 묻는 항목입니다">
+            </div>
+            <button class="btn primary" id="add">추가</button>
+        </div>
+    </div>
+
+    <div class="panel" style="padding:0">
+        <table class="grid">
+            <colgroup>
+                <col style="width:90px">
+                <col style="width:160px">
+                <col>
+                <col style="width:110px">
+                <col style="width:140px">
+                <col style="width:70px">
+            </colgroup>
+            <thead>
+            <tr>
+                <th>종류</th>
+                <th>대상</th>
+                <th>사유</th>
+                <th>등록자</th>
+                <th>등록일시</th>
+                <th>삭제</th>
+            </tr>
+            </thead>
+            <tbody id="rules"></tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:14px">
+        <a class="btn" th:href="@{/}">리포트 목록</a>
+    </div>
+
+</div>
+
+<script th:src="@{/js/access.js}"></script>
+
+</body>
+</html>

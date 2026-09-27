@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko">
+<head th:replace="~{layout :: head('리포트 뷰어')}"></head>
+<body>
+
+<header th:replace="~{layout :: gnb('list')}"></header>
+
+<div class="wrap" style="max-width:none">
+
+    <div class="page-title">
+        <h1 th:text="${definition.name}">리포트</h1>
+        <p th:text="${definition.description}"></p>
+    </div>
+
+    <!-- 조회 조건 -->
+    <form class="panel" id="paramForm"
+          th:attr="data-report-id=${definition.reportId}">
+        <div class="toolbar" style="margin:0">
+            <th:block th:each="p : ${template.parameters}">
+                <label class="field">
+                    <span th:text="${p.label} ?: ${p.name}">조건</span>
+
+                    <select th:if="${!#lists.isEmpty(p.options)}"
+                            th:name="${p.name}" th:attr="data-required=${p.required}">
+                        <option th:each="o : ${p.options}"
+                                th:value="${o.value}" th:text="${o.label}"
+                                th:selected="${o.value == p.defaultValue}"></option>
+                    </select>
+
+                    <input th:if="${#lists.isEmpty(p.options) and p.dataType.name() == 'DATE'}"
+                           type="date" th:name="${p.name}" th:value="${p.defaultValue}"
+                           th:attr="data-required=${p.required}">
+
+                    <input th:if="${#lists.isEmpty(p.options) and p.dataType.name() == 'NUMBER'}"
+                           type="number" th:name="${p.name}" th:value="${p.defaultValue}"
+                           th:attr="data-required=${p.required}" style="width:110px">
+
+                    <input th:if="${#lists.isEmpty(p.options) and (p.dataType.name() == 'STRING' or p.dataType.name() == 'BOOLEAN')}"
+                           type="text" th:name="${p.name}" th:value="${p.defaultValue}"
+                           th:attr="data-required=${p.required}">
+                </label>
+            </th:block>
+
+            <button class="btn primary" type="submit">조회</button>
+
+            <div class="spacer"></div>
+
+            <label class="field">
+                <span>확대</span>
+                <select id="zoom">
+                    <option value="0.6">60%</option>
+                    <option value="0.8">80%</option>
+                    <option value="1" selected>100%</option>
+                    <option value="1.25">125%</option>
+                    <option value="1.5">150%</option>
+                </select>
+            </label>
+            <button class="btn" type="button" id="btnPrint">인쇄</button>
+            <button class="btn" type="button" data-export="PDF">PDF</button>
+            <button class="btn" type="button" data-export="XLSX">엑셀</button>
+            <button class="btn" type="button" data-export="CSV">CSV</button>
+            <a class="btn" sec:authorize="hasRole('DESIGNER')"
+               th:href="@{/designer/{id}(id=${definition.reportId})}">편집</a>
+        </div>
+    </form>
+
+    <div id="message"></div>
+
+    <div class="toolbar" id="pager" style="display:none">
+        <button class="btn" type="button" id="prevPage">이전 쪽</button>
+        <span id="pageInfo"></span>
+        <button class="btn" type="button" id="nextPage">다음 쪽</button>
+        <span class="spacer"></span>
+        <span id="stat" style="color:#6b7280"></span>
+    </div>
+
+    <!-- 높이를 화면에 맞춰 고정해야 이 상자가 스크롤을 갖고, 쪽 이동과 현재 쪽 표시가 맞물린다.
+         아래쪽 여유는 마지막 쪽도 상단에 맞춰 세울 수 있게 두는 자리다. -->
+    <div id="canvasWrap"
+         style="background:#7a7a7a;border:1px solid #c3ccdb;border-radius:4px;overflow:auto;height:calc(100vh - 250px);min-height:420px;padding:8px 0">
+        <div id="canvas" style="transform-origin:top center;padding-bottom:70vh"></div>
+    </div>
+
+</div>
+
+<script th:src="@{/js/viewer.js}"></script>
+</body>
+</html>
