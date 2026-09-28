@@ -430,3 +430,64 @@
     padding: 0 6px;
     font-size: 11px;
 }
+
+/* ---------------------------------------------------------------- 알림 닫기 */
+/*
+  오류는 저절로 사라지지 않게 두었으므로 닫을 수단이 있어야 한다.
+  글 흐름 위에 얹되 본문과 겹치지 않도록 오른쪽에 자리를 비워 둔다.
+*/
+.msg {
+    position: relative;
+    padding-right: 30px;
+}
+
+.msg-close {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    opacity: .55;
+    font-size: 17px;
+    line-height: 18px;
+    cursor: pointer;
+}
+
+.msg-close:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, .08);
+}
+
+/* ------------------------------------------------- 캔버스 위 인라인 편집 */
+/*
+  더블클릭하면 요소 자리에 그대로 겹쳐 뜬다. 다른 곳으로 눈을 옮기지 않고
+  보이는 자리에서 고치는 것이 목적이라, 크기와 위치를 요소에 맞춘다.
+*/
+.dz-inline-edit {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 1px 2px;
+    border: 2px solid var(--primary, #1f4e79);
+    border-radius: 2px;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 11px;
+    line-height: 1.3;
+    resize: none;
+    overflow: auto;
+}
+
+.dz-inline-edit:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(31, 78, 121, .25);
+}

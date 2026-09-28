@@ -283,6 +283,91 @@
 
     var drag = null;
 
+    /**
+     * 텍스트 요소를 더블클릭하면 그 자리에서 고친다.
+     *
+     * 지금까지는 요소를 고르고 오른쪽 속성판까지 눈을 옮겨야 값을 바꿀 수 있었다.
+     * 표 한 장에 칸이 수십 개인 리포트에서는 그 왕복이 작업 속도를 그대로 깎는다.
+     * 고치는 것은 표현식 그 자체다 - 화면에 보이는 것이 곧 식이라 따로 배울 것이 없다.
+     */
+    canvas.addEventListener('dblclick', function (e) {
+        var target = e.target.closest('.dz-el');
+        if (!target) {
+            return;
+        }
+        var bi = parseInt(target.dataset.bandIndex, 10);
+        var ei = parseInt(target.dataset.elementIndex, 10);
+        var element = state.template.bands[bi].elements[ei];
+
+        // 값이 글로 된 요소만. 이미지나 차트는 여기서 고칠 것이 없다.
+        if (['TEXT', 'LABEL', 'BARCODE', 'QRCODE'].indexOf(element.type) < 0) {
+            return;
+        }
+        e.preventDefault();
+        startInlineEdit(target, element, bi, ei);
+    });
+
+    /**
+     * 요소마다 글이 담기는 칸이 다르다.
+     *
+     * 라벨은 고정된 문구라 text 에, 나머지는 값을 계산하는 식이라 expression 에 들어간다.
+     * 한쪽으로 몰아 쓰면 라벨을 고쳤을 때 글자가 사라진다.
+     */
+    function textFieldOf(element) {
+        return element.type === 'LABEL' ? 'text' : 'expression';
+    }
+
+    function startInlineEdit(host, element, bandIndex, elementIndex) {
+        if (host.querySelector('.dz-inline-edit')) {
+            return;
+        }
+        var field = textFieldOf(element);
+        var input = document.createElement('textarea');
+        input.className = 'dz-inline-edit';
+        input.value = element[field] || '';
+        input.title = field === 'text' ? '고정 문구' : '표현식';
+        input.spellcheck = false;
+
+        host.appendChild(input);
+        input.focus();
+        input.select();
+
+        var done = false;
+        function finish(commit) {
+            if (done) {
+                return;
+            }
+            done = true;
+            if (commit) {
+                element[field] = input.value;
+            }
+            // renderAll 이 캔버스를 다시 그리므로 입력칸은 함께 사라진다
+            renderAll();
+        }
+
+        input.addEventListener('blur', function () {
+            finish(true);
+        });
+        input.addEventListener('keydown', function (ev) {
+            // 줄바꿈이 필요한 식도 있으므로 Shift+Enter 는 그대로 둔다
+            if (ev.key === 'Enter' && !ev.shiftKey) {
+                ev.preventDefault();
+                finish(true);
+            } else if (ev.key === 'Escape') {
+                ev.preventDefault();
+                finish(false);
+            }
+            ev.stopPropagation();
+        });
+        // 입력칸 안의 클릭이 요소 끌기로 넘어가지 않게 막는다
+        input.addEventListener('mousedown', function (ev) {
+            ev.stopPropagation();
+        });
+        input.addEventListener('dblclick', function (ev) {
+            ev.stopPropagation();
+        });
+    }
+
     canvas.addEventListener('mousedown', function (e) {
         var grip = e.target.closest('.dz-band-resize');
         if (grip) {
@@ -906,8 +991,70 @@
         document.getElementById('marginBottom').value = p.marginBottom;
         document.getElementById('marginLeft').value = p.marginLeft;
         document.getElementById('marginRight').value = p.marginRight;
-        document.getElementById('sql').value = state.template.dataSet.sql || '';
         document.getElementById('reportName').value = state.template.name || '';
+        renderDataSetForm();
+    }
+
+    /** 데이터셋 칸을 현재 정의대로 채운다 */
+    function renderDataSetForm() {
+        var d = state.template.dataSet || {};
+        document.getElementById('sql').value = d.sql || '';
+        document.getElementById('sourceType').value = d.sourceType || 'SQL';
+        document.getElementById('maxRows').value = d.maxRows || 50000;
+        document.getElementById('staticRows').value = rowsToText(d.columns, d.rows);
+        applySourceType();
+    }
+
+    /** 고른 원본에 맞는 칸만 보인다 */
+    function applySourceType() {
+        var sql = document.getElementById('sourceType').value === 'SQL';
+        document.getElementById('sqlBox').style.display = sql ? '' : 'none';
+        document.getElementById('staticBox').style.display = sql ? 'none' : '';
+        document.getElementById('dataSource').style.display = sql ? '' : 'none';
+    }
+
+    /** 직접 입력 행을 화면용 CSV 로 */
+    function rowsToText(columns, rows) {
+        if (!rows || !rows.length) {
+            return '';
+        }
+        var names = (columns || []).map(function (c) { return c.name; }).filter(Boolean);
+        if (!names.length) {
+            names = Object.keys(rows[0]);
+        }
+        var lines = [names.join(',')];
+        rows.forEach(function (row) {
+            lines.push(names.map(function (n) { return row[n] == null ? '' : String(row[n]); }).join(','));
+        });
+        return lines.join(String.fromCharCode(10));
+    }
+
+    /**
+     * 화면의 CSV 를 행 목록으로.
+     *
+     * 첫 줄이 컬럼명이다. 따옴표나 쉼표가 섞인 값까지 다루는 온전한 CSV 파서는 두지 않았다 -
+     * 여기 들어오는 것은 배치를 확인할 손으로 적은 몇 줄이고, 진짜 자료는 DB 조회로 온다.
+     */
+    function textToRows(text) {
+        var lines = (text || '').split(/\r?\n/).filter(function (l) { return l.trim() !== ''; });
+        if (lines.length < 2) {
+            return {columns: [], rows: []};
+        }
+        var names = lines[0].split(',').map(function (n) { return n.trim(); }).filter(Boolean);
+        var rows = lines.slice(1).map(function (line) {
+            var cells = line.split(',');
+            var row = {};
+            names.forEach(function (n, i) {
+                var v = (cells[i] || '').trim();
+                // 숫자로 보이면 숫자로. 그래야 합계나 서식이 제대로 걸린다.
+                row[n] = v !== '' && !isNaN(v) ? Number(v) : v;
+            });
+            return row;
+        });
+        return {
+            columns: names.map(function (n) { return {name: n, label: n, dataType: 'STRING'}; }),
+            rows: rows
+        };
     }
 
     function renderAll() {
@@ -920,8 +1067,16 @@
 
     // ================================================================ 서버 연동
 
+    /**
+     * 알림을 띄운다.
+     *
+     * 오류는 저절로 사라지지 않는다 - 무엇이 잘못됐는지 읽고 고치는 동안 남아 있어야 한다.
+     * 대신 닫을 수단이 없으면 화면 위에 계속 걸려 거슬리므로 닫기 단추를 함께 넣는다.
+     */
     function showMessage(kind, text, details) {
-        var html = '<div class="msg ' + kind + '">' + escapeHtml(text);
+        var html = '<div class="msg ' + kind + '">'
+            + '<button type="button" class="msg-close" aria-label="알림 닫기">&times;</button>'
+            + escapeHtml(text);
         if (details && details.length) {
             html += '<ul>';
             details.forEach(function (d) {
@@ -930,11 +1085,18 @@
             html += '</ul>';
         }
         message.innerHTML = html + '</div>';
-        if (kind === 'info') {
-            setTimeout(function () {
-                message.innerHTML = '';
-            }, 2500);
+
+        var close = message.querySelector('.msg-close');
+        if (close) {
+            close.addEventListener('click', clearMessage);
         }
+        if (kind === 'info') {
+            setTimeout(clearMessage, 2500);
+        }
+    }
+
+    function clearMessage() {
+        message.innerHTML = '';
     }
 
     function collectTemplate() {
@@ -947,7 +1109,15 @@
         t.page.marginBottom = parseFloat(document.getElementById('marginBottom').value) || 0;
         t.page.marginLeft = parseFloat(document.getElementById('marginLeft').value) || 0;
         t.page.marginRight = parseFloat(document.getElementById('marginRight').value) || 0;
+        t.dataSet.sourceType = document.getElementById('sourceType').value;
         t.dataSet.sql = document.getElementById('sql').value;
+        t.dataSet.dataSource = document.getElementById('dataSource').value || 'main';
+        t.dataSet.maxRows = parseInt(document.getElementById('maxRows').value, 10) || 50000;
+        if (t.dataSet.sourceType === 'STATIC') {
+            var parsed = textToRows(document.getElementById('staticRows').value);
+            t.dataSet.columns = parsed.columns;
+            t.dataSet.rows = parsed.rows;
+        }
         return t;
     }
 
@@ -1046,9 +1216,39 @@
         document.getElementById('previewLayer').style.display = 'none';
     });
 
+    document.getElementById('sourceType').addEventListener('change', applySourceType);
+
+    /**
+     * 쓸 수 있는 데이터소스를 채운다.
+     *
+     * 목록은 서버가 이 사람 기준으로 걸러서 준다. 쓸 수 없는 DB 가 고를 수 있게 보이면
+     * 골라 놓고 저장할 때야 거부당한다.
+     */
+    function loadDataSources() {
+        var box = document.getElementById('dataSource');
+        fetch('/api/reports/datasources')
+            .then(function (res) { return res.ok ? res.json() : ['main']; })
+            .catch(function () { return ['main']; })
+            .then(function (list) {
+            var names = (list && list.length) ? list : ['main'];
+            var current = (state.template.dataSet && state.template.dataSet.dataSource) || 'main';
+            box.innerHTML = '';
+            names.forEach(function (n) {
+                var o = document.createElement('option');
+                o.value = n;
+                o.textContent = n;
+                box.appendChild(o);
+            });
+            box.value = names.indexOf(current) >= 0 ? current : names[0];
+            // 고를 것이 하나뿐이면 자리만 차지한다
+            box.style.display = names.length > 1 ? '' : 'none';
+        });
+    }
+
     document.getElementById('btnFields').addEventListener('click', function () {
         postJson('/api/reports/fields', {
             sql: document.getElementById('sql').value,
+            dataSource: document.getElementById('dataSource').value || 'main',
             parameters: defaultParameters()
         }).then(function (r) {
             if (!r.ok) {
@@ -1134,6 +1334,7 @@
     // ================================================================ 시작
 
     function boot() {
+        loadDataSources();
         if (!originalReportId) {
             renderPageForm();
             renderAll();
@@ -1152,6 +1353,7 @@
                 });
                 renderPageForm();
                 renderAll();
+                loadDataSources();
             })
             .catch(function (e) {
                 showMessage('error', '리포트를 불러오지 못했습니다: ' + e.message);

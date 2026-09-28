@@ -121,6 +121,22 @@ logging:
     kr.co.kreport: DEBUG
     org.hibernate.SQL: WARN
 
+  # 콘솔 로그가 깨질 때를 위해 파일로도 남긴다.
+  #
+  # 윈도우 콘솔은 기본이 CP949 인데 자바는 UTF-8 로 쓴다. 특히 mvn spring-boot:run 은
+  # 자식 JVM 의 출력을 파이프로 받으므로 자바가 콘솔을 알아채지 못해 UTF-8 로 쓰고,
+  # 그것을 CP949 콘솔이 그대로 읽어 "?곗씠?곗뀑" 처럼 깨진다.
+  # 파일은 콘솔과 무관하게 UTF-8 로 남으므로 여기를 보면 된다. run.bat 으로 띄우면
+  # 콘솔도 UTF-8 로 맞춰진다.
+  file:
+    name: logs/kreport.log
+  charset:
+    file: UTF-8
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
+
 ---
 # 운영 프로파일 예시. PostgreSQL 을 쓰고 스키마는 마이그레이션 도구로 관리한다.
 spring:

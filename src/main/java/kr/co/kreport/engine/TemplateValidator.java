@@ -52,17 +52,28 @@ public final class TemplateValidator {
         return errors;
     }
 
+    /**
+     * 데이터셋 검사.
+     *
+     * <p><b>데이터셋이 없어도 막지 않는다.</b> 종이 위에 어디에 무엇을 놓을지 먼저 잡고
+     * 조회는 나중에 붙이는 순서가 현장에서 흔하다. 데이터가 있어야만 저장할 수 있으면
+     * 그 순서로 일할 수 없다. 비어 있으면 실행할 때 행이 없는 것으로 보고
+     * "표시할 자료가 없습니다" 를 그린다.</p>
+     *
+     * <p>다만 <b>무언가 적혀 있는데 틀린 경우</b>는 막는다. 오타 난 SQL 을 저장해 두면
+     * 실행하는 사람이 원인을 짚기 어렵다.</p>
+     */
     private static void validateDataSet(DataSetDef dataSet, List<String> errors) {
-        if (dataSet == null) {
-            errors.add("데이터셋 정의가 없습니다.");
+        if (dataSet == null || dataSet.getSourceType() != DataSetDef.SourceType.SQL) {
             return;
         }
-        if (dataSet.getSourceType() == DataSetDef.SourceType.SQL) {
-            try {
-                SqlGuard.verifySelect(dataSet.getSql());
-            } catch (IllegalArgumentException e) {
-                errors.add("데이터셋: " + e.getMessage());
-            }
+        if (dataSet.getSql() == null || dataSet.getSql().isBlank()) {
+            return;
+        }
+        try {
+            SqlGuard.verifySelect(dataSet.getSql());
+        } catch (IllegalArgumentException e) {
+            errors.add("데이터셋: " + e.getMessage());
         }
     }
 
