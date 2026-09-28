@@ -17,3 +17,6 @@ private-key*
 *.iml
 .vscode/
 .DS_Store
+
+# local 프로파일로 띄울 때 생기는 H2 파일
+/data/

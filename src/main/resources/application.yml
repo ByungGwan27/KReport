@@ -138,6 +138,39 @@ logging:
       max-history: 7
 
 ---
+# 작업물을 남기는 개발 프로파일.
+#
+#   mvn spring-boot:run -Dspring-boot.run.profiles=local
+#   java -jar target/kreport-1.0.0.jar --spring.profiles.active=local
+#
+# 기본(인메모리)은 껐다 켜면 깨끗해져서 실험하기 좋지만, 디자이너로 만든 리포트와
+# 열람 규칙도 함께 사라진다. 리포트를 실제로 쌓기 시작하면 이쪽으로 띄운다.
+#
+# 초기 상태로 되돌리려면 data/ 폴더를 지우면 된다.
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    # AUTO_SERVER=TRUE 로 두면 서버가 떠 있는 동안에도 다른 도구로 같은 파일을 열 수 있다.
+    url: jdbc:h2:file:./data/kreport;MODE=LEGACY;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      # create-drop 이면 끌 때 테이블을 지워 파일에 남겨 둔 뜻이 없어진다.
+      # update 는 없는 것만 만들고 기존 자료는 건드리지 않는다.
+      ddl-auto: update
+
+  # 업무 샘플 표(budget_execution 등)는 켤 때마다 새로 깐다. 스크립트가
+  # drop/delete 로 시작해 몇 번을 돌려도 같은 상태가 되고, 어차피 보여 주기용
+  # 자료다. 남겨야 하는 것은 그 위에서 만든 리포트 정의와 열람 규칙인데,
+  # 그쪽은 JPA 가 관리하는 표라 이 스크립트가 건드리지 않는다.
+
+---
 # 운영 프로파일 예시. PostgreSQL 을 쓰고 스키마는 마이그레이션 도구로 관리한다.
 spring:
   config:
