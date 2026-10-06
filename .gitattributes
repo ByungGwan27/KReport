@@ -1,0 +1,4 @@
+# 셸 스크립트는 LF 여야 bash 가 읽는다 (CRLF 면 "set -e" 에서 실패)
+*.sh  text eol=lf
+# 배치 파일은 CRLF 여야 cmd 가 레이블과 goto 를 제대로 찾는다
+*.bat text eol=crlf
